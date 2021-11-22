@@ -1,5 +1,10 @@
 # Lab手順
 
+## メモ
+・jq install
+・/etc/hosts 10.1.1.8 backend1 backend2 backend3 backend4
+
+
 ## 実施環境
 * 事前にラボ環境へのInviteを行っておりますので、メールをご確認ください
 * 利用するコマンド： git , docker, docker-compose , jq , sudo, curl
@@ -199,171 +204,644 @@ nginx       9149  0.0  0.1   9764  3528 ?        S    10:12   0:00 nginx: worker
 
 ```
 
-#### ディレクトリの移動
-```
-cd ~/nap-partner-campaign/nplus-container
-```
-適切にパスを変更
+### NGINXの基礎
+#### 1. Directive / Block
+P32
 
-#### Install の実施
+#### 2. Configの階層構造
+P42,41
+
+### 基本的な動作の確認
+#### 0. 事前ファイルの取得
+ラボで必要なファイルをGitHubから取得
+```
+sudo su - 
+cd ~/
+git clone https://github.com/hiropo20/back-to-basic_plus/
+
+
+適切にURLを変更
+
+```
+#### 1. 設定のテスト、反映
+
+```
+root@ip-10-1-1-7:/home/ubuntu# cd /etc/nginx/conf.d/
+cp ~/back-to-basic_plus/lab/m1-1_demo.conf default.conf
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m1-1_demo.conf default.conf
+root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+server {
+    # you need to add ; at end of listen directive.
+    listen       81
+    server_name  localhost;
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+}
+```
+
+設定のテスト結果を確認してください。
+-tと-T二つのオプションを実行し、違いを確認してください
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -h
+nginx version: nginx/1.21.3 (nginx-plus-r25)
+Usage: nginx [-?hvVtTq] [-s signal] [-p prefix]
+             [-e filename] [-c filename] [-g directives]
+
+Options:
+  -?,-h         : this help
+  -v            : show version and exit
+  -V            : show version and configure options then exit
+  -t            : test configuration and exit
+  -T            : test configuration, dump it and exit
+  -q            : suppress non-error messages during configuration testing
+  -s signal     : send signal to a master process: stop, quit, reopen, reload
+  -p prefix     : set prefix path (default: /etc/nginx/)
+  -e filename   : set error log file (default: /var/log/nginx/error.log)
+  -c filename   : set configuration file (default: /etc/nginx/nginx.conf)
+  -g directives : set global directives out of configuration file
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -t
+nginx: [emerg] invalid parameter "server_name" in /etc/nginx/conf.d/default.conf:4
+nginx: configuration file /etc/nginx/nginx.conf test failed
+```
+
+"server_name" directive でエラーとなっていることがわかります。
+これは、その一つ前の行が正しく「；(セミコロン)」で終わっていないことが問題となります。
+エディタで設定ファイルを開き修正してください
+```
+vi default.conf
+
+# listen directiveの文末に ; を追加
+---
+[変更前]    listen       81
+[変更後]    listen       81;
+```
+
+再度テストを実行してください
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -T
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+# configuration file /etc/nginx/nginx.conf:
+
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log notice;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+}
+
+
+※省略※
+# configuration file /etc/nginx/conf.d/default.conf:
+server {
+    # you need to add ; at end of listen directive.
+    listen       81;
+    server_name  localhost;
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+}
+
+```
+
+設定の読み込み、動作確認
+正しく Port 81 でListenしていることを確認してください
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+root@ip-10-1-1-7:/etc/nginx/conf.d# ss -anp | grep nginx | grep LISTEN
+tcp    LISTEN  0       511                                              0.0.0.0:81                                                0.0.0.0:*                      users:(("nginx",pid=9341,fd=12),("nginx",pid=9340,fd=12),("nginx",pid=9147,fd=12))
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost:81 | grep title
+<title>Welcome to nginx!</title>
+
+```
+
+#### 2. 設定の継承
+ラボで使用するファイルをコピー
+```
+cp -r ~/back-to-basic_plus/html .
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m2-1_demo.conf default.conf
+```
+
+設定ファイルの確認してください。
+本設定では、indexがポイントとなります。
+
+listen 80では、indexを個別に記述をしていません。
+listen 8080では、indexとして main.html を指定しています。
+また、それぞれ root の記述方法が異なっています。
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+index index.html;
+server {
+        listen 80;
+        root conf.d/html;
+}
+server {
+        listen 8080;
+        root /etc/nginx/conf.d/html;
+        index main.html;
+}
+```
+設定を反映し、これらがどのように動作するのか見てみましょう。
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+root@ip-10-1-1-7:/etc/nginx/conf.d# ss -anp | grep nginx | grep LISTEN
+tcp    LISTEN  0       511                                              0.0.0.0:8080                                              0.0.0.0:*                      users:(("nginx",pid=9392,fd=9),("nginx",pid=9391,fd=9),("nginx",pid=9147,fd=9))
+tcp    LISTEN  0       511                                              0.0.0.0:80                                                0.0.0.0:*                      users:(("nginx",pid=9392,fd=8),("nginx",pid=9391,fd=8),("nginx",pid=9147,fd=8))
+
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost:80 | grep path
+        <h2>path: html/index.html</h2>
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost:8080 | grep path
+        <h2>path: html/main.html</h2>
+
+```
+
+
+#### 3. Server Directive
+ラボで使用するファイルをコピーします
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m3-1_demo.conf default.conf
+```
+
+設定内容を確認し、反映します
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+server {
+
+}
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+root@ip-10-1-1-7:/etc/nginx/conf.d# ss -anp | grep nginx | grep LISTEN
+tcp    LISTEN  0       511                                              0.0.0.0:80                                                0.0.0.0:*                      users:(("nginx",pid=9445,fd=8),("nginx",pid=9444,fd=8),("nginx",pid=9147,fd=8))
+
+```
+設定が反映され、80でListenしていることが確認できます
+curlコマンドで結果を確認してみます
+```
+# curl localhost:80
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx/1.21.3</center>
+</body>
+
+```
+404エラーとなりました。これはどこを参照しているのでしょうか。
+各directiveのdefaultパラメータを確認してください
+
+root
+http://nginx.org/en/docs/http/ngx_http_core_module.html#root
+index
+http://nginx.org/en/docs/http/ngx_http_index_module.html#index
+listen
+http://nginx.org/en/docs/http/ngx_http_core_module.html#listen
+
+これらの内容より、server directiveに設定を記述しない場合にも、defaultのパラメータで動作していることが確認できます。
+
+それでは対象となるディレクトリにファイルをコピーします
+
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# mkdir ../html
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/html/m3-1_index.html ../html/index.html
+```
+
+htmlファイルを配置しました。
+設定ファイルに変更は加えておりませんので、再度curlコマンドで結果を確認します
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost:80 | grep default
+        <h2>This is default html file path</h2>
+
+```
+今度は正しく結果が表示されました
+このようにdefeaultパラメータの動作を確認できました
 
 
 
-Docker composeは複数のコンテナを利用するDockerアプリケーションを定義するツールです。Docker Composeを利用する場合には、YAMLファイルにアプリケーションとして実行したい内容を記述します。その後、コマンド実行時にYAMLファイルを指定することで、指定の通りアプリケーションを起動することが可能です
+#### 5. 複数のListen Directiveを指定
+ラボで使用するファイルをコピーします
 ```
-sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m3-2_demo.conf default.conf
 ```
-Docker Composeコマンドに適切な権限を付与
-```
-sudo chmod +x /usr/local/bin/docker-compose
-```
-Docker Composeコマンドの動作を確認
-```
-docker-compose --version
-```
-### 2. ContainerでNGINXを起動
 
-Docker Container ImageをPull
+設定内容を確認し、反映します
 ```
-docker pull nginx
-```
-NGINX Containerの起動
-```
-docker run --name ngx-docker -p 80:80 -d nginx
-```
-Web Serverの動作確認
-```
-curl http://localhost:80/
-```
-以下のコマンドを参考にContainerの動作状況などを確認
-docker ps コマンドの結果を確認し、CONTAINER_IDの表示結果を参考に以下を実施
-```
-docker ps
-docker exec -it <<CONTAINER_ID>>  bash
-```
-上記コマンドと同様の内容を以下コマンドで実行できることを確認
-```
-docker ps -aqf "name=ngx-docker"
-docker exec -it `docker ps -aqf "name=ngx-docker"`  bash
-```
-Containerの停止
-```
-docker stop ngx-docker
-```
-Containerの削除
-```
-docker rm ngx-docker
-```
-新しいコンテナの起動
-```
-docker run --name ngx-docker-new -p 80:80 -d nginx
-```
-新しいコンテナの停止
-```
-docker stop ngx-docker-new
-```
-新しいコンテナの削除
-```
-docker rm ngx-docker-new
-```
-### 3.  Docker Composeを利用してアプリケーションを実行
-Deployment file:
-https://github.com/mcheo-nginx/handson_training/tree/main/basic_docker
+root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+# server {
+#    ## no listen directive
+# }
 
-GitHubよりファイルを取得
+server {
+    listen 127.0.0.1:8080;
+}
+
+server {
+    listen 127.0.0.2;
+}
+
+server {
+    listen 8081;
+}
+
+server {
+    listen unix:/var/run/nginx.sock;
+}
+
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# service nginx restart
+
 ```
-cd ~
-git clone https://github.com/mcheo-nginx/handson_training.git
-cd handson_training/basic_docker/
+設定で指定したポート番号やソケットでListenしていることを確認してください。
+（正しく設定が読み込めない場合は、再度上記コマンドにて設定を読み込んでください)
+
 ```
-デプロイの実行
+root@ip-10-1-1-7:/etc/nginx/conf.d# ls /var/run/nginx.sock
+/var/run/nginx.sock
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# ss -anp | grep nginx | grep LISTEN
+u_str LISTEN    0      511                                  /var/run/nginx.sock 60394                                                   * 0                      users:(("nginx",pid=9947,fd=9),("nginx",pid=9946,fd=9),("nginx",pid=9945,fd=9))
+tcp   LISTEN    0      511                                            127.0.0.2:80                                                0.0.0.0:*                      users:(("nginx",pid=9947,fd=7),("nginx",pid=9946,fd=7),("nginx",pid=9945,fd=7))
+tcp   LISTEN    0      511                                            127.0.0.1:8080                                              0.0.0.0:*                      users:(("nginx",pid=9947,fd=6),("nginx",pid=9946,fd=6),("nginx",pid=9945,fd=6))
+tcp   LISTEN    0      511                                              0.0.0.0:8081                                              0.0.0.0:*                      users:(("nginx",pid=9947,fd=8),("nginx",pid=9946,fd=8),("nginx",pid=9945,fd=8))
 ```
-docker-compose -f docker-compose.yml up -d
+
+それぞれ Listen している内容に対して接続できることを確認してください
+
+
 ```
-デプロイ結果の確認
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s 127.0.0.1:8080 | grep default
+        <h2>This is default html file path</h2>
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s 127.0.0.2:80 | grep default
+        <h2>This is default html file path</h2>
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s 127.0.0.1:8081 | grep default
+        <h2>This is default html file path</h2>
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s --unix-socket /var/run/nginx.sock http: | grep default
+        <h2>This is default html file path</h2>
+
 ```
-curl -sv localhost:8000 | head
+
+socketを削除し、NGINXが起動することを確認します
+
 ```
-設定の変更。nginx.conf ファイルの変更。(proxy_passのコメントアウト、“return” directiveの追加)
+rm /var/run/nginx/sock
+rm default.conf
+service nginx restart
 ```
-vi ./nginx.conf
+
+#### 6.  複数のserver_nameを指定
+ラボで使用するファイルをコピーします
 ```
-設定変更内容
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m3-3_demo.conf default.conf
 ```
+
+設定内容を確認し、反映します
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+
+server {
+    server_name example.com;
+    return 200 "example.com\n";
+}
+
+server {
+    server_name host1.example.com;
+    return 200 "host1.example.com\n";
+}
+
+server {
+        server_name www.example.*;
+    return 200 "www.example.*\n";
+}
+server{
+        server_name *.org;
+    return 200 "*.org\n";
+}
+server {
+        server_name *.example.org;
+    return 200 "*.example.org\n";
+}
+
+server {
+        listen 80;
+        server_name ~^(www2|host2).*\.example\.com$;
+   return 200 "~^(www2|host2).*\.example\.com\n";
+}
+server {
+        listen 80;
+        server_name ~^.*\.example\..*$;
+    return 200 "~^.*\.example\..*\n";
+}
+server {
+        listen 80;
+        server_name ~^(host2|host3).*\.example\.com$;
+    return 200 "~^(host2|host3).*\.example\.com\n";
+}
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+```
+server_nameの処理順序は以下です
+1. 文字列の完全一致
+1. Wild Cardを用いた文字列の前方一致
+1. Wild Cardを用いた文字列の後方一致
+1. 正規表現のはじめの一致
+
+以下のコマンドを実行し結果を確認します。
+どのような処理が行われているか確認してください。
+```
+・完全一致する結果を確認
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl localhost -H 'Host:host1.example.com'
+host1.example.com
+
+・Wild Cardの前方一致する結果を確認
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl localhost -H 'Host:www.example.co.jp'
+www.example.*
+
+・正規表現のはじめに一致する結果を確認
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl localhost -H 'Host:host2.example.co.jp'
+~^.*\.example\..*
+
+```
+
+
+#### 7. 複数のlocationを指定
+ラボで使用するファイルをコピーします
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m4-1_demo.conf default.conf
+```
+
+設定内容を確認し、反映します
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+server {
+   listen 80;
+   location / {
+      return 200 "LOCATION: / , URI: $request_uri, PORT: $server_port\n";
+   }
+   location ~* \.(php|html)$ {
+      return 200 "LOCATION: ~* \.(php|html), URI: $request_uri, PORT: $server_port\n";
+   }
+   location ^~ /app1 {
+      return 200 "LOCATION: ^~ /app1, URI: $request_uri, PORT: $server_port\n";
+   }
+   location ~* /app1/.*\.(php|html)$ {
+      return 200 "LOCATION: ~* /app1/.*\.(php|html), URI: $request_uri, PORT: $server_port\n";
+   }
+   location = /app1/index.php {
+           return 200 "LOCATION: = /app1/index.php, URI: $request_uri, PORT: $server_port\n";
+   }
+   location  /app2 {
+      return 200 "LOCATION: /app2, URI: $request_uri, PORT: $server_port\n";
+   }
+   location ~* /app2/.*\.(php|html)$ {
+      return 200 "LOCATION: ~* /app2/.*\.(php|html), URI: $request_uri, PORT: $server_port\n";
+   }
+
+}
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+```
+
+locationの処理順序は以下となります。
+P18,19
+
+期待した結果となることを確認してください。
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl http://localhost/app1/index.html
+LOCATION: ^~ /app1, URI: /app1/index.html, PORT: 80
+
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl http://localhost/app2/index.html
+LOCATION: ~* \.(php|html), URI: /app2/index.html, PORT: 80
+
+```
+
+#### 8. Proxy
+ラボで使用するファイルをコピーします
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m5-1_demo.conf default.conf
+```
+
+設定内容を確認し、反映します
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+
+server {
+    listen 80;
+    location /app1 {
+        proxy_pass http://backend1:81/otherapp;
+    }
+    location /app2 {
+        proxy_pass http://backend1:81;
+    }
+
+}
+
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+```
+
+以下のコマンドを実行し結果を確認します。
+どのような処理が行われているか確認してください。
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost/app1/usr1/index.php | jq .
+{
+  "request_uri": "/otherapp/usr1/index.php",
+  "server_addr": "10.1.1.8",
+  "server_port": "81"
+}
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost/app2/usr1/index.php | jq .
+{
+  "request_uri": "/app2/usr1/index.php",
+  "server_addr": "10.1.1.8",
+  "server_port": "81"
+}
+
+```
+
+
+#### 9. Load Balancing
+ラボで使用するファイルをコピーします
+```
+cp -r ~/back-to-basic_plus/html .
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m6-1_demo.conf default.conf
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m6-1_plus_api.conf plus_api.conf
+```
+
+設定内容を確認し、反映します
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+
+upstream server_group {
+    zone backend 64k;
+    server backend1:81 weight=1;
+    server backend2:82 weight=2;
+}
+server {
+    listen 80;
+    location / {
+        proxy_pass http://server_group;
+    }
+}
+root@ip-10-1-1-7:/etc/nginx/conf.d# cat plus_api.conf
+server {
+    listen 8888;
+    access_log /var/log/nginx/mng_access.log;
+
+    location /api {
+        api write=on;
+        # directives limiting access to the API
+    }
+
+    location = /dashboard.html {
+        root   /usr/share/nginx/html;
+    }
+
+}
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+```
+ブラウザでNGINX Plus Dashboardを開きます
+（ブラウザでubuntu01のDashboardを開きます)
+
+以下コマンドを実行し、適切に分散されることを確認します。
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# for i in {1..9}; do echo "==$i==" ; curl -s localhost | jq . ; sleep 1 ; done
+
+==1==
+{
+  "request_uri": "/",
+  "server_addr": "10.1.1.8",
+  "server_port": "82"
+}
+※省略※
+==9==
+{
+  "request_uri": "/",
+  "server_addr": "10.1.1.8",
+  "server_port": "82"
+}
+```
+Dashboardの結果が適切なweightで分散されていることを確認してください。
+
+
+#### 10. トラフィックの暗号化
+ラボで使用するファイルをコピーします
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp -r ~/back-to-basic_plus/ssl .
+root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m8-1_demo.conf default.conf
+```
+
+設定内容を確認し、反映します
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+server {
+    listen 80;
+        listen 443 ssl;
+        ssl_certificate_key conf.d/ssl/nginx-ecc-p256.key;
+        ssl_certificate conf.d/ssl/nginx-ecc-p256.pem;
         location / {
-                      #proxy_pass http://backend;
-                                  return 200 "Container Lab\n";
-                                          }
-                                          ```
-                                          デプロイしたアプリケーションの再起動
-                                          ```
-                                          docker-compose -f docker-compose.yml restart
-                                          ```
-                                          再度、デプロイ結果の確認
-                                          ```
-                                          curl -sv localhost:8000 | head
-                                          ```
+                proxy_pass http://backend1:81;
+        }
+}
+root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+```
+
+以下のコマンドを実行し結果を確認します。
+
+```
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -v http://localhost
+*   Trying 127.0.0.1:80...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 80 (#0)
+> GET / HTTP/1.1
+> Host: localhost
+> User-Agent: curl/7.68.0
+> Accept: */*
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: nginx/1.21.3
+< Date: Mon, 22 Nov 2021 15:05:35 GMT
+< Content-Type: application/octet-stream
+< Content-Length: 65
+< Connection: keep-alive
+<
+* Connection #0 to host localhost left intact
+{ "request_uri": "/","server_addr":"10.1.1.8","server_port":"81"}
 
 
-### 参考: Docker cheatsheet for beginners
-Dockerコマンド参考情報。以下の内容やInternetの情報を参考にDockerコマンドを実行してください  
+root@ip-10-1-1-7:/etc/nginx/conf.d# curl -kv https://localhost
+*   Trying 127.0.0.1:443...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 443 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+* successfully set certificate verify locations:
+*   CAfile: /etc/ssl/certs/ca-certificates.crt
+  CApath: /etc/ssl/certs
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+* TLSv1.2 (IN), TLS handshake, Certificate (11):
+* TLSv1.2 (IN), TLS handshake, Server key exchange (12):
+* TLSv1.2 (IN), TLS handshake, Server finished (14):
+* TLSv1.2 (OUT), TLS handshake, Client key exchange (16):
+* TLSv1.2 (OUT), TLS change cipher, Change cipher spec (1):
+* TLSv1.2 (OUT), TLS handshake, Finished (20):
+* TLSv1.2 (IN), TLS handshake, Finished (20):
+* SSL connection using TLSv1.2 / ECDHE-ECDSA-AES256-GCM-SHA384
+* ALPN, server accepted to use http/1.1
+* Server certificate:
+*  subject: CN=localhost
+*  start date: Mar 24 01:04:24 2021 GMT
+*  expire date: Apr 23 01:04:24 2021 GMT
+*  issuer: CN=localhost
+*  SSL certificate verify result: self signed certificate (18), continuing anyway.
+> GET / HTTP/1.1
+> Host: localhost
+> User-Agent: curl/7.68.0
+> Accept: */*
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: nginx/1.21.3
+< Date: Mon, 22 Nov 2021 15:05:49 GMT
+< Content-Type: application/octet-stream
+< Content-Length: 65
+< Connection: keep-alive
+<
+* Connection #0 to host localhost left intact
+{ "request_uri": "/","server_addr":"10.1.1.8","server_port":"81"}
 
-Docker machine commands  
-* Create new: docker-machine create MACHINE  
-* List all: docker-machine ls  
-* Show env: docker-machine env default  
-* Use: eval "$(docker-machine env default)"
-* Unset: docker-machine env -u
-* Unset: eval $(docker-machine env -u)
-
-Docker image commands
-* Download: docker pull IMAGE[:TAG]
-* Build from local Dockerfile: docker build -t TAG .
-* Build with user and tag: docker build -t USER/IMAGE:TAG .
-* List: docker image ls or docker images
-* List all: docker image ls -a or docker images -a
-* Remove (image or tag): docker image rm IMAGE or docker rmi IMAGE
-* Remove all dangling (nameless): docker image prune
-* Remove all unused: docker image prune -a
-* Remove all: docker rmi $(docker images -aq)
-* Tag: docker tag IMAGE TAG
-* Save to file:docker save IMAGE > FILE
-* Load from file: docker load -i FILE
-
-Docker container commands
-* Run from image: docker run IMAGE
-* Run with name: docker run --name NAME IMAGE
-* Map a port: docker run -p HOST:CONTAINER IMAGE
-* Map all ports: docker run -P IMAGE
-* Start in background: docker run -d IMAGE
-* Set hostname: docker run --hostname NAME IMAGE
-* Set domain: docker run --add-host HOSTNAME:IP IMAGE
-* Map local directory: docker run -v HOST:TARGET IMAGE
-* Change entrypoint: docker run -it --entrypoint NAME IMAGE
-* List running: docker ps or docker container ls
-* List all: docker ps -a or docker container ls -a
-* Stop: docker stop ID or docker container stop ID
-* Start: docker start ID
-* Stop all: docker stop $(docker ps -aq)
-* Kill (force stop): docker kill ID or docker container kill ID
-* Remove: docker rm ID or docker container rm ID
-* Remove running: docker rm -f ID
-* Remove all stopped: docker container prune
-* Remove all: docker rm $(docker ps -aq)
-* Rename: docker rename OLD NEW
-* Create image from container: docker commit ID
-* Show modified files: docker diff ID
-* Show mapped ports: docker port ID
-* Copy from container: docker cp ID:SOURCE TARGET
-* Copy to container docker cp TARGET ID:SOURCE
-* Show logs: docker logs ID
-* Show processes: docker top ID
-* Start shell: docker exec -it ID bash
-
-Other useful Docker commands
-* Log in: docker login
-* Run compose file: docker-compose
-* Get info about image: docker inspect IMAGE
-* Show stats of running containers: docker stats
-* Show version: docker version
-
+```
