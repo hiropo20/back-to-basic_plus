@@ -32,7 +32,7 @@ Docker HOSTへのSSH接続は、Jump Host経由　または、SSH鍵認証を用
 ***SSH鍵を登録頂いていない場合、SSHはグレーアウトします***
 <br><a href="https://github.com/hiropo20/partner_nap_workshop_secure/blob/main/UDF_SSH_Key.pdf">UDF LAB SSH鍵登録マニュアル</a> (ラボ実施時閲覧可に変更します)<br>
 
-## ユーザの確認
+## 対象のホストにログイン
 実行ユーザの確認
 ```
 whoami
@@ -40,17 +40,8 @@ whoami
 出力結果がcentosであることを確認してください。
 webshell を利用してrootで操作している場合には、su - centos でユーザを切り替えてください
 ```
-## Git clone
 
-ラボで必要なファイルをGitHubから取得
-```
-cd ~/
-git clone https://github.com/hiropo20/nap-partner-campaign_no3.git
-```
-
-適切にURLを変更
-
-## NGINX Plusのインストール
+## 1. NGINX Plusのインストール
 ### 1. Install NGINX Plus 
 
 以下の手順に従ってNGINX Plus をインストール
@@ -103,7 +94,7 @@ sudo wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90pkgs-nginx
 sudo apt-get update
 ```
 
-### NGINX パッケージのインストール
+#### NGINX パッケージのインストール
 ```
 sudo apt-get install -y nginx-plus
 sudo apt-get install -y app-protect app-protect-attack-signatures
@@ -204,15 +195,15 @@ nginx       9149  0.0  0.1   9764  3528 ?        S    10:12   0:00 nginx: worker
 
 ```
 
-### NGINXの基礎
-#### 1. Directive / Block
+## 2. NGINXの基礎
+### 1. Directive / Block
 P32
 
-#### 2. Configの階層構造
+### 2. Configの階層構造
 P42,41
 
-### 基本的な動作の確認
-#### 0. 事前ファイルの取得
+## 3. 基本的な動作の確認
+### 0. 事前ファイルの取得
 ラボで必要なファイルをGitHubから取得
 ```
 sudo su - 
@@ -223,14 +214,14 @@ git clone https://github.com/hiropo20/back-to-basic_plus/
 適切にURLを変更
 
 ```
-#### 1. 設定のテスト、反映
+### 1. 設定のテスト、設定の反映
 
 ```
-root@ip-10-1-1-7:/home/ubuntu# cd /etc/nginx/conf.d/
+# cd /etc/nginx/conf.d/
 cp ~/back-to-basic_plus/lab/m1-1_demo.conf default.conf
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m1-1_demo.conf default.conf
-root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+# cp ~/back-to-basic_plus/lab/m1-1_demo.conf default.conf
+# cat default.conf
 server {
     # you need to add ; at end of listen directive.
     listen       81
@@ -245,7 +236,7 @@ server {
 設定のテスト結果を確認してください。
 -tと-T二つのオプションを実行し、違いを確認してください
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -h
+# nginx -h
 nginx version: nginx/1.21.3 (nginx-plus-r25)
 Usage: nginx [-?hvVtTq] [-s signal] [-p prefix]
              [-e filename] [-c filename] [-g directives]
@@ -263,7 +254,7 @@ Options:
   -c filename   : set configuration file (default: /etc/nginx/nginx.conf)
   -g directives : set global directives out of configuration file
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -t
+# nginx -t
 nginx: [emerg] invalid parameter "server_name" in /etc/nginx/conf.d/default.conf:4
 nginx: configuration file /etc/nginx/nginx.conf test failed
 ```
@@ -282,10 +273,10 @@ vi default.conf
 
 再度テストを実行してください
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -t
+# nginx -t
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -T
+# nginx -T
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 # configuration file /etc/nginx/nginx.conf:
@@ -340,20 +331,20 @@ server {
 設定の読み込み、動作確認
 正しく Port 81 でListenしていることを確認してください
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
-root@ip-10-1-1-7:/etc/nginx/conf.d# ss -anp | grep nginx | grep LISTEN
+# nginx -s reload
+# ss -anp | grep nginx | grep LISTEN
 tcp    LISTEN  0       511                                              0.0.0.0:81                                                0.0.0.0:*                      users:(("nginx",pid=9341,fd=12),("nginx",pid=9340,fd=12),("nginx",pid=9147,fd=12))
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost:81 | grep title
+# curl -s localhost:81 | grep title
 <title>Welcome to nginx!</title>
 
 ```
 
-#### 2. 設定の継承
+### 2. 設定の継承
 ラボで使用するファイルをコピー
 ```
 cp -r ~/back-to-basic_plus/html .
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m2-1_demo.conf default.conf
+# cp ~/back-to-basic_plus/lab/m2-1_demo.conf default.conf
 ```
 
 設定ファイルの確認してください。
@@ -363,7 +354,7 @@ listen 80では、indexを個別に記述をしていません。
 listen 8080では、indexとして main.html を指定しています。
 また、それぞれ root の記述方法が異なっています。
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+# cat default.conf
 index index.html;
 server {
         listen 80;
@@ -377,35 +368,35 @@ server {
 ```
 設定を反映し、これらがどのように動作するのか見てみましょう。
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
-root@ip-10-1-1-7:/etc/nginx/conf.d# ss -anp | grep nginx | grep LISTEN
+# nginx -s reload
+# ss -anp | grep nginx | grep LISTEN
 tcp    LISTEN  0       511                                              0.0.0.0:8080                                              0.0.0.0:*                      users:(("nginx",pid=9392,fd=9),("nginx",pid=9391,fd=9),("nginx",pid=9147,fd=9))
 tcp    LISTEN  0       511                                              0.0.0.0:80                                                0.0.0.0:*                      users:(("nginx",pid=9392,fd=8),("nginx",pid=9391,fd=8),("nginx",pid=9147,fd=8))
 
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost:80 | grep path
+# curl -s localhost:80 | grep path
         <h2>path: html/index.html</h2>
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost:8080 | grep path
+# curl -s localhost:8080 | grep path
         <h2>path: html/main.html</h2>
 
 ```
 
 
-#### 3. Server Directive
+### 3. Server Directive
 ラボで使用するファイルをコピーします
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m3-1_demo.conf default.conf
+# cp ~/back-to-basic_plus/lab/m3-1_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+# cat default.conf
 server {
 
 }
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
-root@ip-10-1-1-7:/etc/nginx/conf.d# ss -anp | grep nginx | grep LISTEN
+# nginx -s reload
+# ss -anp | grep nginx | grep LISTEN
 tcp    LISTEN  0       511                                              0.0.0.0:80                                                0.0.0.0:*                      users:(("nginx",pid=9445,fd=8),("nginx",pid=9444,fd=8),("nginx",pid=9147,fd=8))
 
 ```
@@ -436,14 +427,14 @@ http://nginx.org/en/docs/http/ngx_http_core_module.html#listen
 それでは対象となるディレクトリにファイルをコピーします
 
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# mkdir ../html
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/html/m3-1_index.html ../html/index.html
+# mkdir ../html
+# cp ~/back-to-basic_plus/html/m3-1_index.html ../html/index.html
 ```
 
 htmlファイルを配置しました。
 設定ファイルに変更は加えておりませんので、再度curlコマンドで結果を確認します
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost:80 | grep default
+# curl -s localhost:80 | grep default
         <h2>This is default html file path</h2>
 
 ```
@@ -452,15 +443,15 @@ root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost:80 | grep default
 
 
 
-#### 5. 複数のListen Directiveを指定
+### 4. 複数のListen Directiveを指定
 ラボで使用するファイルをコピーします
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m3-2_demo.conf default.conf
+# cp ~/back-to-basic_plus/lab/m3-2_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+# cat default.conf
 # server {
 #    ## no listen directive
 # }
@@ -482,17 +473,17 @@ server {
 }
 
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# service nginx restart
+# service nginx restart
 
 ```
 設定で指定したポート番号やソケットでListenしていることを確認してください。
 （正しく設定が読み込めない場合は、再度上記コマンドにて設定を読み込んでください)
 
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# ls /var/run/nginx.sock
+# ls /var/run/nginx.sock
 /var/run/nginx.sock
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# ss -anp | grep nginx | grep LISTEN
+# ss -anp | grep nginx | grep LISTEN
 u_str LISTEN    0      511                                  /var/run/nginx.sock 60394                                                   * 0                      users:(("nginx",pid=9947,fd=9),("nginx",pid=9946,fd=9),("nginx",pid=9945,fd=9))
 tcp   LISTEN    0      511                                            127.0.0.2:80                                                0.0.0.0:*                      users:(("nginx",pid=9947,fd=7),("nginx",pid=9946,fd=7),("nginx",pid=9945,fd=7))
 tcp   LISTEN    0      511                                            127.0.0.1:8080                                              0.0.0.0:*                      users:(("nginx",pid=9947,fd=6),("nginx",pid=9946,fd=6),("nginx",pid=9945,fd=6))
@@ -503,14 +494,14 @@ tcp   LISTEN    0      511                                              0.0.0.0:
 
 
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s 127.0.0.1:8080 | grep default
+# curl -s 127.0.0.1:8080 | grep default
         <h2>This is default html file path</h2>
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s 127.0.0.2:80 | grep default
+# curl -s 127.0.0.2:80 | grep default
         <h2>This is default html file path</h2>
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s 127.0.0.1:8081 | grep default
+# curl -s 127.0.0.1:8081 | grep default
         <h2>This is default html file path</h2>
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s --unix-socket /var/run/nginx.sock http: | grep default
+# curl -s --unix-socket /var/run/nginx.sock http: | grep default
         <h2>This is default html file path</h2>
 
 ```
@@ -523,15 +514,15 @@ rm default.conf
 service nginx restart
 ```
 
-#### 6.  複数のserver_nameを指定
+### 5.  複数のserver_nameを指定
 ラボで使用するファイルをコピーします
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m3-3_demo.conf default.conf
+# cp ~/back-to-basic_plus/lab/m3-3_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+# cat default.conf
 
 server {
     server_name example.com;
@@ -571,7 +562,7 @@ server {
         server_name ~^(host2|host3).*\.example\.com$;
     return 200 "~^(host2|host3).*\.example\.com\n";
 }
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+# nginx -s reload
 ```
 server_nameの処理順序は以下です
 1. 文字列の完全一致
@@ -583,29 +574,29 @@ server_nameの処理順序は以下です
 どのような処理が行われているか確認してください。
 ```
 ・完全一致する結果を確認
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl localhost -H 'Host:host1.example.com'
+# curl localhost -H 'Host:host1.example.com'
 host1.example.com
 
 ・Wild Cardの前方一致する結果を確認
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl localhost -H 'Host:www.example.co.jp'
+# curl localhost -H 'Host:www.example.co.jp'
 www.example.*
 
 ・正規表現のはじめに一致する結果を確認
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl localhost -H 'Host:host2.example.co.jp'
+# curl localhost -H 'Host:host2.example.co.jp'
 ~^.*\.example\..*
 
 ```
 
 
-#### 7. 複数のlocationを指定
+### 6. 複数のlocationを指定
 ラボで使用するファイルをコピーします
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m4-1_demo.conf default.conf
+# cp ~/back-to-basic_plus/lab/m4-1_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+# cat default.conf
 server {
    listen 80;
    location / {
@@ -632,7 +623,7 @@ server {
 
 }
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+# nginx -s reload
 ```
 
 locationの処理順序は以下となります。
@@ -640,24 +631,24 @@ P18,19
 
 期待した結果となることを確認してください。
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl http://localhost/app1/index.html
+# curl http://localhost/app1/index.html
 LOCATION: ^~ /app1, URI: /app1/index.html, PORT: 80
 
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl http://localhost/app2/index.html
+# curl http://localhost/app2/index.html
 LOCATION: ~* \.(php|html), URI: /app2/index.html, PORT: 80
 
 ```
 
-#### 8. Proxy
+### 7. Proxy
 ラボで使用するファイルをコピーします
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m5-1_demo.conf default.conf
+# cp ~/back-to-basic_plus/lab/m5-1_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+# cat default.conf
 
 server {
     listen 80;
@@ -670,19 +661,19 @@ server {
 
 }
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+# nginx -s reload
 ```
 
 以下のコマンドを実行し結果を確認します。
 どのような処理が行われているか確認してください。
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost/app1/usr1/index.php | jq .
+# curl -s localhost/app1/usr1/index.php | jq .
 {
   "request_uri": "/otherapp/usr1/index.php",
   "server_addr": "10.1.1.8",
   "server_port": "81"
 }
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost/app2/usr1/index.php | jq .
+# curl -s localhost/app2/usr1/index.php | jq .
 {
   "request_uri": "/app2/usr1/index.php",
   "server_addr": "10.1.1.8",
@@ -692,17 +683,17 @@ root@ip-10-1-1-7:/etc/nginx/conf.d# curl -s localhost/app2/usr1/index.php | jq .
 ```
 
 
-#### 9. Load Balancing
+### 8. Load Balancing
 ラボで使用するファイルをコピーします
 ```
 cp -r ~/back-to-basic_plus/html .
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m6-1_demo.conf default.conf
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m6-1_plus_api.conf plus_api.conf
+# cp ~/back-to-basic_plus/lab/m6-1_demo.conf default.conf
+# cp ~/back-to-basic_plus/lab/m6-1_plus_api.conf plus_api.conf
 ```
 
 設定内容を確認し、反映します
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+# cat default.conf
 
 upstream server_group {
     zone backend 64k;
@@ -715,7 +706,7 @@ server {
         proxy_pass http://server_group;
     }
 }
-root@ip-10-1-1-7:/etc/nginx/conf.d# cat plus_api.conf
+# cat plus_api.conf
 server {
     listen 8888;
     access_log /var/log/nginx/mng_access.log;
@@ -730,14 +721,14 @@ server {
     }
 
 }
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+# nginx -s reload
 ```
 ブラウザでNGINX Plus Dashboardを開きます
 （ブラウザでubuntu01のDashboardを開きます)
 
 以下コマンドを実行し、適切に分散されることを確認します。
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# for i in {1..9}; do echo "==$i==" ; curl -s localhost | jq . ; sleep 1 ; done
+# for i in {1..9}; do echo "==$i==" ; curl -s localhost | jq . ; sleep 1 ; done
 
 ==1==
 {
@@ -756,16 +747,16 @@ root@ip-10-1-1-7:/etc/nginx/conf.d# for i in {1..9}; do echo "==$i==" ; curl -s 
 Dashboardの結果が適切なweightで分散されていることを確認してください。
 
 
-#### 10. トラフィックの暗号化
+### 9. トラフィックの暗号化
 ラボで使用するファイルをコピーします
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp -r ~/back-to-basic_plus/ssl .
-root@ip-10-1-1-7:/etc/nginx/conf.d# cp ~/back-to-basic_plus/lab/m8-1_demo.conf default.conf
+# cp -r ~/back-to-basic_plus/ssl .
+# cp ~/back-to-basic_plus/lab/m8-1_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# cat default.conf
+# cat default.conf
 server {
     listen 80;
         listen 443 ssl;
@@ -775,13 +766,13 @@ server {
                 proxy_pass http://backend1:81;
         }
 }
-root@ip-10-1-1-7:/etc/nginx/conf.d# nginx -s reload
+# nginx -s reload
 ```
 
 以下のコマンドを実行し結果を確認します。
 
 ```
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -v http://localhost
+# curl -v http://localhost
 *   Trying 127.0.0.1:80...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 80 (#0)
@@ -802,7 +793,7 @@ root@ip-10-1-1-7:/etc/nginx/conf.d# curl -v http://localhost
 { "request_uri": "/","server_addr":"10.1.1.8","server_port":"81"}
 
 
-root@ip-10-1-1-7:/etc/nginx/conf.d# curl -kv https://localhost
+# curl -kv https://localhost
 *   Trying 127.0.0.1:443...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 443 (#0)
