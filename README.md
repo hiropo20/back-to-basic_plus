@@ -260,10 +260,6 @@ nginx       9149  0.0  0.1   9764  3528 ?        S    10:12   0:00 nginx: worker
 sudo su - 
 cd ~/
 git clone https://github.com/hiropo20/back-to-basic_plus/
-
-
-適切にURLを変更
-
 ```
 ### 1. 設定のテスト、設定の反映
 ディレクトリを移動し、必要なファイルをコピーします
