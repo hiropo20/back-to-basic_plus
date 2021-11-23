@@ -1,17 +1,52 @@
-# Lab手順
-
-## メモ
-・jq install
-・/etc/hosts 10.1.1.8 backend1 backend2 backend3 backend4
+# 目次
 
 
-## 実施環境
+
+- [目次](#目次)
+- [実施環境](#実施環境)
+- [座学資料](#座学資料)
+- [UDF コンポーネントへの接続](#udf-コンポーネントへの接続)
+  - [Windows Jump HostへのRDP接続](#windows-jump-hostへのrdp接続)
+  - [Linux Hostへの接続](#linux-hostへの接続)
+- [NGINX Plus の動作](#nginx-plus-の動作)
+  - [1. NGINX Plusのインストール](#1-nginx-plusのインストール)
+    - [NGINX Licenseファイルのコピー](#nginx-licenseファイルのコピー)
+    - [コマンドの実行](#コマンドの実行)
+    - [NGINX パッケージのインストール](#nginx-パッケージのインストール)
+  - [2. NGINXの基礎](#2-nginxの基礎)
+    - [1. ステータスの確認](#1-ステータスの確認)
+    - [2. Directive / Block](#2-directive--block)
+    - [3. Configの階層構造](#3-configの階層構造)
+  - [3. 基本的な動作の確認](#3-基本的な動作の確認)
+    - [0. 事前ファイルの取得](#0-事前ファイルの取得)
+    - [1. 設定のテスト、設定の反映](#1-設定のテスト設定の反映)
+    - [2. 設定の継承](#2-設定の継承)
+    - [3. server directive](#3-server-directive)
+    - [4. listen directive](#4-listen-directive)
+    - [5. server_name directive](#5-server_name-directive)
+    - [6. location directive](#6-location-directive)
+    - [7. Proxy](#7-proxy)
+    - [8. Load Balancing](#8-load-balancing)
+    - [9. トラフィックの暗号化](#9-トラフィックの暗号化)
+  
+
+# 実施環境
 * 事前にラボ環境へのInviteを行っておりますので、メールをご確認ください
-* 利用するコマンド： git , docker, docker-compose , jq , sudo, curl
+* 利用するコマンド： git , jq , sudo, curl
 * NGINX Trialライセンスの取得、ラボ実施ユーザのHome Directryへ配置
 
-## UDF コンポーネントへの接続
-### Windows Jump HostへのRDP接続
+# 座学資料
+このラボはNGINX Plusのインストールから各種設定を行っていただけます。
+
+NGINX Plusの基本的な動作や仕様については以下資料を参照してください。  
+(ラボの一部の内容はこれらのセミナーでご紹介した内容と同様となります)
+
+セミナー資料は以下を参照してください。  
+[これから始めるNGINX技術解説～基本編](https://www.slideshare.net/Nginx/nginx-nginx-back-to-basic-in-jp) (2.1～2.3 , 3.1～3.5に該当) 
+[これから始めるNGINX技術解説～基本編 Part2] (https://www.slideshare.net/Nginx/nginx-back-to-basic-2-part-2-japanese-webinar) (3.6～3.9に該当) 
+
+# UDF コンポーネントへの接続
+## Windows Jump HostへのRDP接続
 
 指定のホストを適切にログインするように適切に変更する
 
@@ -25,29 +60,23 @@ RDPのUser名、パスワードはDETAILSをクリックし、Generalのタブ�
 <br><img src="https://user-images.githubusercontent.com/43058573/121283534-417b5f80-c916-11eb-88af-9f95c2ced284.png" alt="DETAILS" width="200"><br>
 <img src="https://user-images.githubusercontent.com/43058573/121283535-4213f600-c916-11eb-8a89-67362d7a340b.png" alt="Generals" width="300"><br>
 
-### Linux Hostへの接続
+## Linux Hostへの接続
 Docker Hostへの接続は以下メニューを開き利用ください
 <br><img src="https://user-images.githubusercontent.com/43058573/121283528-404a3280-c916-11eb-8a60-bfde13129dfc.png" alt="Docker Menu" width="200"><br>
 Docker HOSTへのSSH接続は、Jump Host経由　または、SSH鍵認証を用いて接続可能です。SSH鍵の登録手順は以下を参照ください
 ***SSH鍵を登録頂いていない場合、SSHはグレーアウトします***
 <br><a href="https://github.com/hiropo20/partner_nap_workshop_secure/blob/main/UDF_SSH_Key.pdf">UDF LAB SSH鍵登録マニュアル</a> (ラボ実施時閲覧可に変更します)<br>
 
-## 対象のホストにログイン
-実行ユーザの確認
-```
-whoami
-
-出力結果がcentosであることを確認してください。
-webshell を利用してrootで操作している場合には、su - centos でユーザを切り替えてください
-```
-
+# NGINX Plus の動作
 ## 1. NGINX Plusのインストール
-### 1. Install NGINX Plus 
 
-以下の手順に従ってNGINX Plus をインストール
-https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-plus/#installing-nginx-plus-on-ubuntu
+以下の手順に従ってNGINX Plus をインストール  
+[Installing NGINX Plus on Ubuntu](https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-plus/#installing-nginx-plus-on-ubuntu)
 
-#### NGINX Licenseファイルのコピー
+> 手順確認の目的で、NGINX Plusの他、NGINX App Protect WAF、NGINX App Protect Dosのインストール手順も示しています。
+> ただし、本ラボでセキュリティ機能の確認はありません
+
+### NGINX Licenseファイルのコピー
 ライセンスファイルをコピーしてください
 ファイルが配置されていない場合、トライアルを申請し証明書と鍵を取得してください
 
@@ -57,7 +86,7 @@ sudo cp ~/nginx-repo.crt /etc/ssl/nginx/
 sudo cp ~/nginx-repo.key /etc/ssl/nginx/
 ```
 
-#### コマンドの実行
+### コマンドの実行
 NGINX、App Protect WAF と App Protect DoS のリポジトリに利用する鍵を取得します
 ```
 sudo wget https://cs.nginx.com/static/keys/nginx_signing.key && sudo apt-key add nginx_signing.key
@@ -94,7 +123,7 @@ sudo wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90pkgs-nginx
 sudo apt-get update
 ```
 
-#### NGINX パッケージのインストール
+### NGINX パッケージのインストール
 ```
 sudo apt-get install -y nginx-plus
 sudo apt-get install -y app-protect app-protect-attack-signatures
@@ -114,9 +143,19 @@ NGINX App Protect DoS のVersion
 admd -v
 ```
 
+その他インストールしたパッケージの情報を確認いただけます。ラボ環境のホストはUbuntuとなります。
 
 ```
-ubuntu@ip-10-1-1-7:~$ dpkg-query -l | grep app-protect
+# dpkg-query -l | grep nginx-plus
+ii  nginx-plus                         25-1~focal                            amd64        NGINX Plus, provided by Nginx, Inc.
+ii  nginx-plus-module-appprotect       25+3.671.0-1~focal                    amd64        NGINX Plus app protect dynamic module version 3.671.0
+ii  nginx-plus-module-appprotectdos    25+2.0.1-1~focal                      amd64        NGINX Plus appprotectdos dynamic module
+
+```
+
+```
+# dpkg-query -l | grep app-protect
+
 ii  app-protect                        25+3.671.0-1~focal                    amd64        App-Protect package for Nginx Plus, Includes all of the default files and examples. Nginx App Protect provides web application firewall (WAF) security protection for your web applications, including OWASP Top 10 attacks.
 ii  app-protect-attack-signatures      2021.11.16-1~focal                    amd64        Attack Signature Updates for App-Protect
 ii  app-protect-common                 8.12.1-1~focal                        amd64        NGINX App Protect
@@ -125,15 +164,13 @@ ii  app-protect-dos                    25+2.0.1-1~focal                      amd
 ii  app-protect-engine                 8.12.1-1~focal                        amd64        NGINX App Protect
 ii  app-protect-plugin                 3.671.0-1~focal                       amd64        NGINX App Protect plugin
 
-
-ubuntu@ip-10-1-1-7:~$ dpkg-query -l | grep nginx-plus
-ii  nginx-plus                         25-1~focal                            amd64        NGINX Plus, provided by Nginx, Inc.
-ii  nginx-plus-module-appprotect       25+3.671.0-1~focal                    amd64        NGINX Plus app protect dynamic module version 3.671.0
-ii  nginx-plus-module-appprotectdos    25+2.0.1-1~focal                      amd64        NGINX Plus appprotectdos dynamic module
-
 ```
-### 2. ステータスの確認
-#### プロセスの確認
+## 2. NGINXの基礎
+### 1. ステータスの確認
+NGINX Plusのアーキテクチャ
+<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-22-638.jpg" alt="Architecture" width="400"><br>
+<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-26-638.jpg" alt="NoDowntime" width="400"><br>
+
 NGINX の停止・起動
 ```
 sudo service nginx stop
@@ -142,6 +179,9 @@ sudo service nginx start
 NGINX のstatus
 ```
 sudo service nginx status
+```
+<b style="color:blue">実行結果サンプル</b>
+```
 ● nginx.service - NGINX Plus - high performance web server
      Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
      Active: active (running) since Mon 2021-11-22 10:12:55 UTC; 11s ago
@@ -163,19 +203,28 @@ Nov 22 10:12:55 ip-10-1-1-7 systemd[1]: Started NGINX Plus - high performance we
 
 pidファイルの配置場所の確認
 ```
-ubuntu@ip-10-1-1-7:~$ grep pid /etc/nginx/nginx.conf
+grep pid /etc/nginx/nginx.conf
+```
+<b style="color:blue">実行結果</b>
+```
 pid        /var/run/nginx.pid;
 ```
 
 pidの内容確認
 ```
-ubuntu@ip-10-1-1-7:~$ cat /var/run/nginx.pid
+cat /var/run/nginx.pid
+```
+<b style="color:blue">実行結果サンプル</b>
+```
 9147
 ```
 
 論理コア数の確認
 ```
-ubuntu@ip-10-1-1-7:~$ grep processor /proc/cpuinfo | wc -l
+grep processor /proc/cpuinfo | wc -l
+```
+<b style="color:blue">実行結果</b>
+```
 2
 ```
 
@@ -184,7 +233,7 @@ NGINXはMaster Processと通信制御を行うWorker Processに分かれる。Wo
 Master ProcessのPIDがPIDファイルに記載されている内容と一致していることを確認する
 また、Worker ProcessがCPU Core数の数だけ起動していることを確認する
 ```
-ubuntu@ip-10-1-1-7:~$ ps aux | grep nginx
+# ps aux | grep nginx
 nginx       9122  0.0  0.0   2616   608 ?        Ss   10:12   0:00 /bin/sh -c usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config 2>&1 >> /var/log/app_protect/bd-socket-plugin.log
 nginx       9123  0.3  3.0 385260 61592 ?        Sl   10:12   0:00 usr/share/ts/bin/bd-socket-plugin tmm_count 4 proc_cpuinfo_cpu_mhz 2000000 total_xml_memory 307200000 total_umu_max_size 3129344 sys_max_account_id 1024 no_static_config
 nginx       9125  0.0  0.0   2616   608 ?        Ss   10:12   0:00 /bin/sh -c /usr/bin/admd -d --log info 2>&1 > /var/log/adm/admd.log
@@ -195,12 +244,14 @@ nginx       9149  0.0  0.1   9764  3528 ?        S    10:12   0:00 nginx: worker
 
 ```
 
-## 2. NGINXの基礎
-### 1. Directive / Block
-P32
 
-### 2. Configの階層構造
-P42,41
+### 2. Directive / Block
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-32-638.jpg" alt="Directive" width="400"><br>
+
+### 3. Configの階層構造
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-34-638.jpg" alt="Contexts" width="400"><br>
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-41-638.jpg" alt="include" width="400"><br>
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-42-638.jpg" alt="Inheritance" width="400"><br>
 
 ## 3. 基本的な動作の確認
 ### 0. 事前ファイルの取得
@@ -215,13 +266,17 @@ git clone https://github.com/hiropo20/back-to-basic_plus/
 
 ```
 ### 1. 設定のテスト、設定の反映
-
+ディレクトリを移動し、必要なファイルをコピーします
 ```
-# cd /etc/nginx/conf.d/
+cd /etc/nginx/conf.d/
 cp ~/back-to-basic_plus/lab/m1-1_demo.conf default.conf
-
-# cp ~/back-to-basic_plus/lab/m1-1_demo.conf default.conf
-# cat default.conf
+```
+設定ファイルの内容を確認します
+```
+cat default.conf
+```
+<b style="color:blue">実行結果</b>
+```
 server {
     # you need to add ; at end of listen directive.
     listen       81
@@ -232,9 +287,13 @@ server {
     }
 }
 ```
+基本的なコマンドと、Signalについて以下を確認してください。
+<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-27-638.jpg" alt="Commands" width="400"><br>
+<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-28-638.jpg" alt="Signals" width="400"><br>
+NGINX Config Fileを反映する前にテストすることが可能です。コマンドを実行し、テスト結果を確認してください。  
+`-t` と `-T` の2つのオプションを実行し、違いを確認します。
 
-設定のテスト結果を確認してください。
--tと-T二つのオプションを実行し、違いを確認してください
+まず、オプションの内容を確認してください。
 ```
 # nginx -h
 nginx version: nginx/1.21.3 (nginx-plus-r25)
@@ -253,30 +312,48 @@ Options:
   -e filename   : set error log file (default: /var/log/nginx/error.log)
   -c filename   : set configuration file (default: /etc/nginx/nginx.conf)
   -g directives : set global directives out of configuration file
-
-# nginx -t
+```
+テストを実行します(`-t`) 
+```
+nginx -t
+```
+<b style="color:blue">実行結果</b>
+```
 nginx: [emerg] invalid parameter "server_name" in /etc/nginx/conf.d/default.conf:4
 nginx: configuration file /etc/nginx/nginx.conf test failed
 ```
 
 "server_name" directive でエラーとなっていることがわかります。
-これは、その一つ前の行が正しく「；(セミコロン)」で終わっていないことが問題となります。
+これは、その一つ前の行が正しく「；(セミコロン)」で終わっていないことが問題となります。  
 エディタで設定ファイルを開き修正してください
 ```
 vi default.conf
-
-# listen directiveの文末に ; を追加
+```
+<b style="color:blue">変更内容</b>
+```
+listen directiveの文末に ; を追加してください。
 ---
 [変更前]    listen       81
 [変更後]    listen       81;
+---
 ```
 
-再度テストを実行してください
+再度テストを実行してください。   
+`-t` の実行
 ```
-# nginx -t
+nginx -t
+```
+<b style="color:blue">実行結果</b>
+```
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
-# nginx -T
+```
+`-T` の実行
+```
+nginx -T
+```
+<b style="color:blue">実行結果</b>
+```
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 # configuration file /etc/nginx/nginx.conf:
@@ -328,33 +405,43 @@ server {
 
 ```
 
-設定の読み込み、動作確認
+設定の読み込み、動作確認をします。  
 正しく Port 81 でListenしていることを確認してください
 ```
-# nginx -s reload
-# ss -anp | grep nginx | grep LISTEN
+nginx -s reload
+ss -anp | grep nginx | grep LISTEN
+```
+<b style="color:blue">実行結果</b>  
+```
 tcp    LISTEN  0       511                                              0.0.0.0:81                                                0.0.0.0:*                      users:(("nginx",pid=9341,fd=12),("nginx",pid=9340,fd=12),("nginx",pid=9147,fd=12))
-
-# curl -s localhost:81 | grep title
+```
+curlコマンドを実行します。
+```
+curl -s localhost:81 | grep title
+```
+<b style="color:blue">実行結果</b>
+```
 <title>Welcome to nginx!</title>
-
 ```
 
 ### 2. 設定の継承
-ラボで使用するファイルをコピー
+ラボで使用するファイルをコピーします
 ```
 cp -r ~/back-to-basic_plus/html .
-# cp ~/back-to-basic_plus/lab/m2-1_demo.conf default.conf
+cp ~/back-to-basic_plus/lab/m2-1_demo.conf default.conf
 ```
 
-設定ファイルの確認してください。
+設定ファイルの確認してください。  
 本設定では、indexがポイントとなります。
 
 listen 80では、indexを個別に記述をしていません。
 listen 8080では、indexとして main.html を指定しています。
 また、それぞれ root の記述方法が異なっています。
 ```
-# cat default.conf
+cat default.conf
+```
+<b style="color:blue">実行結果</b>
+```
 index index.html;
 server {
         listen 80;
@@ -368,42 +455,70 @@ server {
 ```
 設定を反映し、これらがどのように動作するのか見てみましょう。
 ```
-# nginx -s reload
-# ss -anp | grep nginx | grep LISTEN
+nginx -s reload
+ss -anp | grep nginx | grep LISTEN
+```
+<b style="color:blue">実行結果</b>
+```
 tcp    LISTEN  0       511                                              0.0.0.0:8080                                              0.0.0.0:*                      users:(("nginx",pid=9392,fd=9),("nginx",pid=9391,fd=9),("nginx",pid=9147,fd=9))
 tcp    LISTEN  0       511                                              0.0.0.0:80                                                0.0.0.0:*                      users:(("nginx",pid=9392,fd=8),("nginx",pid=9391,fd=8),("nginx",pid=9147,fd=8))
+```
 
-
-# curl -s localhost:80 | grep path
-        <h2>path: html/index.html</h2>
-# curl -s localhost:8080 | grep path
-        <h2>path: html/main.html</h2>
-
+Port 80 に対し、curlコマンドを実行します。
+```
+curl -s localhost:80 | grep path
+```
+<b style="color:blue">実行結果</b>
+```
+    <h2>path: html/index.html</h2>     
+```
+Port 8080 に対し、curlコマンドを実行します。
+```
+curl -s localhost:8080 | grep path
+```
+<b style="color:blue">実行結果</b>
+```
+    <h2>path: html/main.html</h2>
 ```
 
 
-### 3. Server Directive
+### 3. server directive
+NGINXが通信を待ち受ける動作について以下を確認してください。
+<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-45-638.jpg" alt="serving_content" width="400"><br>
+<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-47-638.jpg" alt="request" width="400"><br>
+
 ラボで使用するファイルをコピーします
 ```
-# cp ~/back-to-basic_plus/lab/m3-1_demo.conf default.conf
+cp ~/back-to-basic_plus/lab/m3-1_demo.conf default.conf
 ```
 
-設定内容を確認し、反映します
+設定内容を確認します。
 ```
-# cat default.conf
+cat default.conf
+```
+<b style="color:blue">実行結果</b>
+```
 server {
 
 }
-
-# nginx -s reload
-# ss -anp | grep nginx | grep LISTEN
+```
+設定を反映します。
+```
+nginx -s reload
+ss -anp | grep nginx | grep LISTEN
+```
+<b style="color:blue">実行結果</b>
+```
 tcp    LISTEN  0       511                                              0.0.0.0:80                                                0.0.0.0:*                      users:(("nginx",pid=9445,fd=8),("nginx",pid=9444,fd=8),("nginx",pid=9147,fd=8))
 
 ```
-設定が反映され、80でListenしていることが確認できます
-curlコマンドで結果を確認してみます
+設定が反映され、80でListenしていることが確認できます。  
+curlコマンドで結果を確認します。
 ```
-# curl localhost:80
+curl localhost:80
+```
+<b style="color:blue">実行結果</b>
+```
 <html>
 <head><title>404 Not Found</title></head>
 <body>
@@ -412,46 +527,53 @@ curlコマンドで結果を確認してみます
 </body>
 
 ```
-404エラーとなりました。これはどこを参照しているのでしょうか。
+404エラーとなりました。これはどこを参照しているのでしょうか。  
 各directiveのdefaultパラメータを確認してください
 
-root
-http://nginx.org/en/docs/http/ngx_http_core_module.html#root
-index
-http://nginx.org/en/docs/http/ngx_http_index_module.html#index
-listen
-http://nginx.org/en/docs/http/ngx_http_core_module.html#listen
+[nginx.org : root directive](http://nginx.org/en/docs/http/ngx_http_core_module.html#root)  
+[nginx.org : index directive](http://nginx.org/en/docs/http/ngx_http_index_module.html#index)  
+[nginx.org : listen directive](http://nginx.org/en/docs/http/ngx_http_core_module.html#listen)
 
 これらの内容より、server directiveに設定を記述しない場合にも、defaultのパラメータで動作していることが確認できます。
 
-それでは対象となるディレクトリにファイルをコピーします
+それでは対象となるディレクトリにファイルをコピーします。
 
 ```
-# mkdir ../html
-# cp ~/back-to-basic_plus/html/m3-1_index.html ../html/index.html
+mkdir ../html
+cp html/m3-1_index.html ../html/index.html
 ```
 
-htmlファイルを配置しました。
+htmlファイルを配置しました。  
 設定ファイルに変更は加えておりませんので、再度curlコマンドで結果を確認します
 ```
-# curl -s localhost:80 | grep default
-        <h2>This is default html file path</h2>
-
+curl -s localhost:80 | grep default
+```
+<b style="color:blue">実行結果</b>
+```
+    <h2>This is default html file path</h2>
 ```
 今度は正しく結果が表示されました
 このようにdefeaultパラメータの動作を確認できました
 
 
 
-### 4. 複数のListen Directiveを指定
+### 4. listen directive
+listen directiveを利用することにより、NGINXが待ち受けるIPアドレスやポート番号など指定することができます。  
+以下のような記述で意図した動作となるよう設定をします
+<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-49-638.jpg" alt="listen" width="400"><br>
+<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-50-638.jpg" alt="server_listen" width="400"><br>
+
 ラボで使用するファイルをコピーします
 ```
-# cp ~/back-to-basic_plus/lab/m3-2_demo.conf default.conf
+cp ~/back-to-basic_plus/lab/m3-2_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-# cat default.conf
+cat default.conf
+```
+<b style="color:blue">実行結果</b>
+```
 # server {
 #    ## no listen directive
 # }
@@ -479,11 +601,20 @@ server {
 設定で指定したポート番号やソケットでListenしていることを確認してください。
 （正しく設定が読み込めない場合は、再度上記コマンドにて設定を読み込んでください)
 
+ソケットが生成されていることを確認
 ```
-# ls /var/run/nginx.sock
+ls /var/run/nginx.sock
+```
+<b style="color:blue">実行結果</b>
+```
 /var/run/nginx.sock
-
-# ss -anp | grep nginx | grep LISTEN
+```
+NGINXでListenしている内容を確認
+```
+ss -anp | grep nginx | grep LISTEN
+```
+<b style="color:blue">実行結果サンプル</b>
+```
 u_str LISTEN    0      511                                  /var/run/nginx.sock 60394                                                   * 0                      users:(("nginx",pid=9947,fd=9),("nginx",pid=9946,fd=9),("nginx",pid=9945,fd=9))
 tcp   LISTEN    0      511                                            127.0.0.2:80                                                0.0.0.0:*                      users:(("nginx",pid=9947,fd=7),("nginx",pid=9946,fd=7),("nginx",pid=9945,fd=7))
 tcp   LISTEN    0      511                                            127.0.0.1:8080                                              0.0.0.0:*                      users:(("nginx",pid=9947,fd=6),("nginx",pid=9946,fd=6),("nginx",pid=9945,fd=6))
@@ -492,18 +623,21 @@ tcp   LISTEN    0      511                                              0.0.0.0:
 
 それぞれ Listen している内容に対して接続できることを確認してください
 
-
 ```
 # curl -s 127.0.0.1:8080 | grep default
-        <h2>This is default html file path</h2>
+    <h2>This is default html file path</h2>
+```
+```
 # curl -s 127.0.0.2:80 | grep default
-        <h2>This is default html file path</h2>
+    <h2>This is default html file path</h2>
+```
+```
 # curl -s 127.0.0.1:8081 | grep default
-        <h2>This is default html file path</h2>
-
+    <h2>This is default html file path</h2>
+```
+```
 # curl -s --unix-socket /var/run/nginx.sock http: | grep default
-        <h2>This is default html file path</h2>
-
+    <h2>This is default html file path</h2>
 ```
 
 socketを削除し、NGINXが起動することを確認します
@@ -514,16 +648,20 @@ rm default.conf
 service nginx restart
 ```
 
-### 5.  複数のserver_nameを指定
+### 5. server_name directive
+server_name directiveを利用することにより、待ち受けるFQDNを指定することが可能です。
+
 ラボで使用するファイルをコピーします
 ```
-# cp ~/back-to-basic_plus/lab/m3-3_demo.conf default.conf
+cp ~/back-to-basic_plus/lab/m3-3_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-# cat default.conf
-
+cat default.conf
+```
+<b style="color:blue">実行結果</b>
+```
 server {
     server_name example.com;
     return 200 "example.com\n";
@@ -562,13 +700,13 @@ server {
         server_name ~^(host2|host3).*\.example\.com$;
     return 200 "~^(host2|host3).*\.example\.com\n";
 }
-# nginx -s reload
+```
+設定を反映します。
+```
+nginx -s reload
 ```
 server_nameの処理順序は以下です
-1. 文字列の完全一致
-1. Wild Cardを用いた文字列の前方一致
-1. Wild Cardを用いた文字列の後方一致
-1. 正規表現のはじめの一致
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-52-638.jpg" alt="server_name" width="400"><br>
 
 以下のコマンドを実行し結果を確認します。
 どのような処理が行われているか確認してください。
@@ -588,15 +726,18 @@ www.example.*
 ```
 
 
-### 6. 複数のlocationを指定
+### 6. location directive
 ラボで使用するファイルをコピーします
 ```
-# cp ~/back-to-basic_plus/lab/m4-1_demo.conf default.conf
+cp ~/back-to-basic_plus/lab/m4-1_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-# cat default.conf
+cat default.conf
+```
+<b style="color:blue">実行結果</b>
+```
 server {
    listen 80;
    location / {
@@ -622,34 +763,43 @@ server {
    }
 
 }
-
-# nginx -s reload
+```
+設定を反映します。
+```
+nginx -s reload
 ```
 
 locationの処理順序は以下となります。
-P18,19
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-18-638.jpg" alt="location" width="400"><br>
+
 
 期待した結果となることを確認してください。
 ```
+・前方一致する結果を確認
 # curl http://localhost/app1/index.html
 LOCATION: ^~ /app1, URI: /app1/index.html, PORT: 80
 
-
+・正規表現で一致する結果を確認
 # curl http://localhost/app2/index.html
 LOCATION: ~* \.(php|html), URI: /app2/index.html, PORT: 80
-
 ```
 
 ### 7. Proxy
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-25-638.jpg" alt="proxy" width="400"><br>
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-27-638.jpg" alt="proxy_append" width="400"><br>
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-26-638.jpg" alt="proxy_replace" width="400"><br>
+
 ラボで使用するファイルをコピーします
 ```
-# cp ~/back-to-basic_plus/lab/m5-1_demo.conf default.conf
+cp ~/back-to-basic_plus/lab/m5-1_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-# cat default.conf
-
+cat default.conf
+```
+<b style="color:blue">実行結果</b>
+```
 server {
     listen 80;
     location /app1 {
@@ -660,7 +810,9 @@ server {
     }
 
 }
-
+```
+設定を反映します
+```
 # nginx -s reload
 ```
 
@@ -684,17 +836,19 @@ server {
 
 
 ### 8. Load Balancing
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-36-638.jpg" alt="lb" width="400"><br>
 ラボで使用するファイルをコピーします
 ```
-cp -r ~/back-to-basic_plus/html .
-# cp ~/back-to-basic_plus/lab/m6-1_demo.conf default.conf
-# cp ~/back-to-basic_plus/lab/m6-1_plus_api.conf plus_api.conf
+cp ~/back-to-basic_plus/lab/m6-1_demo.conf default.conf
+cp ~/back-to-basic_plus/lab/m6-1_plus_api.conf plus_api.conf
 ```
 
 設定内容を確認し、反映します
 ```
-# cat default.conf
-
+cat default.conf
+```
+<b style="color:blue">実行結果</b>
+```
 upstream server_group {
     zone backend 64k;
     server backend1:81 weight=1;
@@ -706,7 +860,12 @@ server {
         proxy_pass http://server_group;
     }
 }
-# cat plus_api.conf
+```
+```
+cat plus_api.conf
+```
+<b style="color:blue">実行結果</b>
+```
 server {
     listen 8888;
     access_log /var/log/nginx/mng_access.log;
@@ -721,15 +880,20 @@ server {
     }
 
 }
-# nginx -s reload
+```
+設定を反映します
+```
+nginx -s reload
 ```
 ブラウザでNGINX Plus Dashboardを開きます
 （ブラウザでubuntu01のDashboardを開きます)
 
 以下コマンドを実行し、適切に分散されることを確認します。
 ```
-# for i in {1..9}; do echo "==$i==" ; curl -s localhost | jq . ; sleep 1 ; done
-
+for i in {1..9}; do echo "==$i==" ; curl -s localhost | jq . ; sleep 1 ; done
+```
+<b style="color:blue">実行結果</b>
+```
 ==1==
 {
   "request_uri": "/",
@@ -748,15 +912,19 @@ Dashboardの結果が適切なweightで分散されていることを確認し�
 
 
 ### 9. トラフィックの暗号化
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-57-638.jpg" alt="lb" width="400"><br>
 ラボで使用するファイルをコピーします
 ```
-# cp -r ~/back-to-basic_plus/ssl .
-# cp ~/back-to-basic_plus/lab/m8-1_demo.conf default.conf
+cp -r ~/back-to-basic_plus/ssl .
+cp ~/back-to-basic_plus/lab/m8-1_demo.conf default.conf
 ```
 
 設定内容を確認し、反映します
 ```
-# cat default.conf
+cat default.conf
+```
+<b style="color:blue">実行結果</b>
+```
 server {
     listen 80;
         listen 443 ssl;
@@ -766,11 +934,15 @@ server {
                 proxy_pass http://backend1:81;
         }
 }
-# nginx -s reload
+```
+設定を反映します
+```
+nginx -s reload
 ```
 
 以下のコマンドを実行し結果を確認します。
 
+HTTPでのアクセスを確認
 ```
 # curl -v http://localhost
 *   Trying 127.0.0.1:80...
@@ -791,8 +963,9 @@ server {
 <
 * Connection #0 to host localhost left intact
 { "request_uri": "/","server_addr":"10.1.1.8","server_port":"81"}
-
-
+```
+HTTPSでのアクセスを確認
+```
 # curl -kv https://localhost
 *   Trying 127.0.0.1:443...
 * TCP_NODELAY set
