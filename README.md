@@ -7,7 +7,7 @@
 - [座学資料](#座学資料)
 - [UDF コンポーネントへの接続](#udf-コンポーネントへの接続)
   - [Windows Jump HostへのRDP接続](#windows-jump-hostへのrdp接続)
-  - [Linux Hostへの接続](#linux-hostへの接続)
+  - [Linux Hostへの接続 (Jump Host を利用しない場合)](#linux-hostへの接続-jump-host-を利用しない場合)
 - [NGINX Plus の動作](#nginx-plus-の動作)
   - [1. NGINX Plusのインストール](#1-nginx-plusのインストール)
     - [NGINX Licenseファイルのコピー](#nginx-licenseファイルのコピー)
@@ -60,7 +60,7 @@ Windows Jump Hostへログインいただくと、SSH Clientのショートカ�
 > <img src="https://user-images.githubusercontent.com/43058573/121283535-4213f600-c916-11eb-8a89-67362d7a340b.png" alt="Generals" width="300"><br>
 
 
-## Linux Hostへの接続
+## Linux Hostへの接続 (Jump Host を利用しない場合)
 `ubuntu01` への接続はメニューより `SSH` をクリックしてください
 <br><img src="https://user-images.githubusercontent.com/43058573/143065455-a327815e-beaa-4351-b112-145ea561db32.JPG" alt="Host Menu" width="200"><br>
 `ubuntu01` へのSSH接続は、Jump Host経由　または、SSH鍵認証を用いて接続可能です。SSH鍵の登録手順は以下を参照ください
