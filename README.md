@@ -47,23 +47,23 @@ NGINX Plusの基本的な動作や仕様については以下資料を参照し�
 
 # UDF コンポーネントへの接続
 ## Windows Jump HostへのRDP接続
-
-指定のホストを適切にログインするように適切に変更する
-
-
 Windows Jump HostからCLIの操作を行う場合、以下タブからRDP Clientファイルをダウンロードいただき接続ください
 <br><img src="https://user-images.githubusercontent.com/43058573/121283531-417b5f80-c916-11eb-9ff9-8d0e7e8f1aad.png" alt="RDP" width="200"><br>
 
-Windows Jump Hostへログインいただくと、SSHを実行するバッチファイルがありますので、そちらをダブルクリックしDocker_HOSTへ接続ください
-<br><img src="https://user-images.githubusercontent.com/43058573/121170154-c8392980-c88f-11eb-9879-f7bb9c4f13a3.png" alt="ssh"><br>
-RDPのUser名、パスワードはDETAILSをクリックし、GeneralのタブのCredentialsの項目を参照ください
-<br><img src="https://user-images.githubusercontent.com/43058573/121283534-417b5f80-c916-11eb-88af-9f95c2ced284.png" alt="DETAILS" width="200"><br>
-<img src="https://user-images.githubusercontent.com/43058573/121283535-4213f600-c916-11eb-8a89-67362d7a340b.png" alt="Generals" width="300"><br>
+Windows Jump Hostへログインいただくと、SSH Clientのショートカットがありますので、そちらをダブルクリックし `ubuntu01` へ接続ください
+<br><img src="https://user-images.githubusercontent.com/43058573/143063512-43f9f7eb-23d9-4895-b583-efa63918ece4.JPG" alt="ssh"><br>
+<br><img src="https://user-images.githubusercontent.com/43058573/143063995-ce445bfe-542b-4d88-ba72-ed935b99d195.JPG" alt="DETAILS" width="300"><br>
+
+
+> RDPのUser名、パスワードはDETAILSをクリックし、GeneralのタブのCredentialsの項目を参照ください
+> <br><img src="https://user-images.githubusercontent.com/43058573/121283534-417b5f80-c916-11eb-88af-9f95c2ced284.png" alt="DETAILS" width="200"><br>
+> <img src="https://user-images.githubusercontent.com/43058573/121283535-4213f600-c916-11eb-8a89-67362d7a340b.png" alt="Generals" width="300"><br>
+
 
 ## Linux Hostへの接続
-Docker Hostへの接続は以下メニューを開き利用ください
-<br><img src="https://user-images.githubusercontent.com/43058573/121283528-404a3280-c916-11eb-8a60-bfde13129dfc.png" alt="Docker Menu" width="200"><br>
-Docker HOSTへのSSH接続は、Jump Host経由　または、SSH鍵認証を用いて接続可能です。SSH鍵の登録手順は以下を参照ください
+`ubuntu01` への接続はメニューより `SSH` をクリックしてください
+<br><img src="https://user-images.githubusercontent.com/43058573/143065455-a327815e-beaa-4351-b112-145ea561db32.JPG" alt="Host Menu" width="200"><br>
+`ubuntu01` へのSSH接続は、Jump Host経由　または、SSH鍵認証を用いて接続可能です。SSH鍵の登録手順は以下を参照ください
 ***SSH鍵を登録頂いていない場合、SSHはグレーアウトします***
 <br><a href="https://github.com/hiropo20/partner_nap_workshop_secure/blob/main/UDF_SSH_Key.pdf">UDF LAB SSH鍵登録マニュアル</a> (ラボ実施時閲覧可に変更します)<br>
 
@@ -168,7 +168,7 @@ ii  app-protect-plugin                 3.671.0-1~focal                       amd
 ## 2. NGINXの基礎
 ### 1. ステータスの確認
 NGINX Plusのアーキテクチャ
-<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-22-638.jpg" alt="Architecture" width="400"><br>
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-22-638.jpg" alt="Architecture" width="400"><br>
 <img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-26-638.jpg" alt="NoDowntime" width="400"><br>
 
 NGINX の停止・起動
@@ -484,7 +484,7 @@ curl -s localhost:8080 | grep path
 
 ### 3. server directive
 NGINXが通信を待ち受ける動作について以下を確認してください。
-<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-45-638.jpg" alt="serving_content" width="400"><br>
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-45-638.jpg" alt="serving_content" width="400"><br>
 <img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-47-638.jpg" alt="request" width="400"><br>
 
 ラボで使用するファイルをコピーします
@@ -560,7 +560,7 @@ curl -s localhost:80 | grep default
 ### 4. listen directive
 listen directiveを利用することにより、NGINXが待ち受けるIPアドレスやポート番号など指定することができます。  
 以下のような記述で意図した動作となるよう設定をします
-<img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-49-638.jpg" alt="listen" width="400"><br>
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-49-638.jpg" alt="listen" width="400"><br>
 <img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-50-638.jpg" alt="server_listen" width="400"><br>
 
 ラボで使用するファイルをコピーします
@@ -886,7 +886,9 @@ server {
 nginx -s reload
 ```
 ブラウザでNGINX Plus Dashboardを開きます
-（ブラウザでubuntu01のDashboardを開きます)
+`ubuntu01` のDashboardへの接続はメニューより `PLUS
+ DASHBOARD` をクリックしてください
+<br><img src="https://user-images.githubusercontent.com/43058573/143065455-a327815e-beaa-4351-b112-145ea561db32.JPG" alt="Host Menu" width="200"><br>
 
 以下コマンドを実行し、適切に分散されることを確認します。
 ```
