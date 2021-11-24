@@ -1,4 +1,4 @@
-# 目次
+d # 目次
 
 
 
@@ -42,8 +42,11 @@ NGINX Plusの基本的な動作や仕様については以下資料を参照し�
 (ラボの一部の内容はこれらのセミナーでご紹介した内容と同様となります)
 
 セミナー資料は以下を参照してください。  
-[これから始めるNGINX技術解説～基本編](https://www.slideshare.net/Nginx/nginx-nginx-back-to-basic-in-jp) (2.1～2.3 , 3.1～3.5に該当) 
-[これから始めるNGINX技術解説～基本編 Part2] (https://www.slideshare.net/Nginx/nginx-back-to-basic-2-part-2-japanese-webinar) (3.6～3.9に該当) 
+[これから始めるNGINX技術解説～基本編](https://www.slideshare.net/Nginx/nginx-nginx-back-to-basic-in-jp)
+ (2.1～2.3 , 3.1～3.5に該当) 
+
+[これから始めるNGINX技術解説～基本編 Part2](https://www.slideshare.net/Nginx/nginx-back-to-basic-2-part-2-japanese-webinar)
+ (3.6～3.9に該当) 
 
 # UDF コンポーネントへの接続
 ## Windows Jump HostへのRDP接続
