@@ -2,17 +2,13 @@ d # 目次
 
 
 
-- [目次](#目次)
 - [実施環境](#実施環境)
 - [UDF コンポーネントへの接続](#udf-コンポーネントへの接続)
   - [Windows Jump HostへのRDP接続](#windows-jump-hostへのrdp接続)
   - [Linux Hostへの接続 (Jump Host を利用しない場合)](#linux-hostへの接続-jump-host-を利用しない場合)
-- [NGINX Ingress Controller 環境のセットアップ](#nginx-ingress-controller-環境のセットアップ)
-  - [NGINX Plus / NGINX App Protect Ingress ControllerのDockerイメージ作成](#nginx-plus--nginx-app-protect-ingress-controllerのdockerイメージ作成)
-    - [環境セットアップ](#環境セットアップ)
-    - [コンテナイメージの作成](#コンテナイメージの作成)
-    - [NGINX Ingress Controller環境のセットアップ](#nginx-ingress-controller環境のセットアップ)
-    - [NGINX Ingress Controllerの実行](#nginx-ingress-controllerの実行)
+- [NGINX Plus の動作](#nginx-plus-の動作)
+  - [1. NGINX Plusのインストール](#1-nginx-plusのインストール)
+    - [NGINX Licenseファイルのコピー](#nginx-licenseファイルのコピー)
     - [コマンドの実行](#コマンドの実行)
     - [NGINX パッケージのインストール](#nginx-パッケージのインストール)
   - [2. NGINXの基礎](#2-nginxの基礎)
@@ -37,22 +33,6 @@ d # 目次
 * 利用するコマンド： kubectl git , jq , sudo, curl
 * NGINX Trialライセンスの取得、ラボ実施ユーザのHome Directryへ配置
 
-<<<<<<< HEAD
-# 座学資料
-このラボはNGINX Plusのインストールから各種設定を行っていただけます。
-
-NGINX Plusの基本的な動作や仕様については以下資料を参照してください。  
-(ラボの一部の内容はこれらのセミナーでご紹介した内容と同様となります)
-
-セミナー資料は以下を参照してください。  
-[これから始めるNGINX技術解説～基本編](https://www.slideshare.net/Nginx/nginx-nginx-back-to-basic-in-jp)
- (2.1～2.3 , 3.1～3.5に該当) 
-
-[これから始めるNGINX技術解説～基本編 Part2](https://www.slideshare.net/Nginx/nginx-back-to-basic-2-part-2-japanese-webinar)
- (3.6～3.9に該当) 
-
-=======
->>>>>>> 9a222e2eca68c7ba865fb0e15bf7b57accc1294a
 # UDF コンポーネントへの接続
 ## Windows Jump HostへのRDP接続
 Windows Jump HostからCLIの操作を行う場合、以下タブからRDP Clientファイルをダウンロードいただき接続ください
@@ -75,102 +55,24 @@ Windows Jump Hostへログインいただくと、SSH Clientのショートカ�
 ***SSH鍵を登録頂いていない場合、SSHはグレーアウトします***
 <br><a href="https://github.com/hiropo20/partner_nap_workshop_secure/blob/main/UDF_SSH_Key.pdf">UDF LAB SSH鍵登録マニュアル</a> (ラボ実施時閲覧可に変更します)<br>
 
-# NGINX Ingress Controller 環境のセットアップ
 
-## NGINX Plus / NGINX App Protect Ingress ControllerのDockerイメージ作成
-以下の手順に従ってNGINX Ingress Controllerのイメージを作成します  
-[Installation with Manifests](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/)
+# NGINX Plus の動作
+## 1. NGINX Plusのインストール
 
-[Building the Ingress Controller Image](https://docs.nginx.com/nginx-ingress-controller/installation/building-ingress-controller-image)
+以下の手順に従ってNGINX Plus をインストール  
+[Installing NGINX Plus on Ubuntu](https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-plus/#installing-nginx-plus-on-ubuntu)
 
+> 手順確認の目的で、NGINX Plusの他、NGINX App Protect WAF、NGINX App Protect Dosのインストール手順も示しています。
+> ただし、本ラボでセキュリティ機能の確認はありません
 
-### 環境セットアップ
-
-ファイルの取得します
-```
-# cd ~/
-# git clone https://github.com/nginxinc/kubernetes-ingress/
-# cd ~/kubernetes-ingress
-# git checkout v2.0.3
-
-```
-
+### NGINX Licenseファイルのコピー
 ライセンスファイルをコピーしてください
 ファイルが配置されていない場合、トライアルを申請し証明書と鍵を取得してください
 
 ```
-# cp ~/nginx-repo* .
-# ls nginx-repo.*
-nginx-repo.crt  nginx-repo.key 
-```
-### コンテナイメージの作成
-コンテナイメージを作成します。
-NGINX Plus ＋ NGINX App Protectのイメージを作成します
-```
-# make debian-image-nap-plus PREFIX=myregistry.example.com/nginxplus-ingress-nap TARGET=container TAG=2.0.3
-# docker images | grep nginxplus-ingress-nap
-myregistry.example.com/nginxplus-ingress-nap   2.0.3                    4f9be0530994   2 minutes ago    575MB
-```
-
-### NGINX Ingress Controller環境のセットアップ
-先程の手順で取得したGitHubのフォルダへ移動し、必要となるManifestをデプロイします。
-```
-# cd ~/kubernetes-ingress/deployments
-# kubectl apply -f common/ns-and-sa.yaml
-# kubectl apply -f rbac/rbac.yaml
-# kubectl apply -f rbac/ap-rbac.yaml
-# kubectl apply -f common/default-server-secret.yaml
-# kubectl apply -f common/nginx-config.yaml
-# kubectl apply -f common/ingress-class.yaml
-# kubectl apply -f common/crds/k8s.nginx.org_virtualservers.yaml
-# kubectl apply -f common/crds/k8s.nginx.org_virtualserverroutes.yaml
-# kubectl apply -f common/crds/k8s.nginx.org_transportservers.yaml
-# kubectl apply -f common/crds/k8s.nginx.org_policies.yaml
-# kubectl apply -f common/crds/k8s.nginx.org_globalconfigurations.yaml
-# kubectl apply -f common/crds/appprotect.f5.com_aplogconfs.yaml
-# kubectl apply -f common/crds/appprotect.f5.com_appolicies.yaml
-# kubectl apply -f common/crds/appprotect.f5.com_apusersigs.yaml
-```
-
-### NGINX Ingress Controllerの実行
-
-NGINX Ingress Controllerのpodを実行します。DeploymentとDaemonSetによる実行が可能ですが、のこの記事ではDeploymentで実行します。DaemonSetで実行したい場合にはマニュアルを参照して適切に読み替えて進めてください。
-
-argsで指定するパラメータの詳細は [Command-line Arguments](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/command-line-arguments)を参照してください
-
-```
-# vi deployment/nginx-plus-ingress.yaml
-
-** 省略 **
-    spec:
-      serviceAccountName: nginx-ingress
-      containers:
-      - image: myregistry.example.com/nginxplus-ingress-nap:2.0.3  # 対象のレジストリを指定してください
-        imagePullPolicy: IfNotPresent
-        name: nginx-plus-ingress
-** 省略 **
-        args:
-          - -nginx-plus
-          - -nginx-configmaps=$(POD_NAMESPACE)/nginx-config
-          - -default-server-tls-secret=$(POD_NAMESPACE)/default-server-secret
-          - -enable-app-protect                            # App Protectを有効にします
-         #- -v=3 # Enables extensive logging. Useful for troubleshooting.
-         #- -report-ingress-status
-         #- -external-service=nginx-ingress
-         #- -enable-prometheus-metrics
-         #- -global-configuration=$(POD_NAMESPACE)/nginx-configuration
-          - -enable-preview-policies                       # OIDCに必要となるArgsを有効にします
-          - -enable-snippets                               # OIDCで一部設定を追加するためsnippetsを有効にします
-
-```
-
-修正したマニフェストを指定しPodを作成します。
-```
-# kubectl apply -f deployment/nginx-plus-ingress.yaml
-deployment.apps/nginx-ingress created
-
-# kubectl get pods --namespace=nginx-ingress
-NAME                             READY   STATUS    RESTARTS   AGE
+sudo mkdir -p /etc/ssl/nginx
+sudo cp ~/nginx-repo.crt /etc/ssl/nginx/
+sudo cp ~/nginx-repo.key /etc/ssl/nginx/
 ```
 
 ### コマンドの実行
