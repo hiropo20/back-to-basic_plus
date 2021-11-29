@@ -3,6 +3,8 @@
 - [目次](#目次)
 - [実施環境](#実施環境)
 - [座学資料](#座学資料)
+    - [セミナー資料](#セミナー資料)
+    - [Webinar(プレゼンテーション・デモ)](#webinarプレゼンテーションデモ)
 - [UDF コンポーネントへの接続](#udf-コンポーネントへの接続)
   - [Windows Jump HostへのRDP接続](#windows-jump-hostへのrdp接続)
   - [Linux Hostへの接続 (Jump Host を利用しない場合)](#linux-hostへの接続-jump-host-を利用しない場合)
@@ -36,16 +38,20 @@
 # 座学資料
 このラボはNGINX Plusのインストールから各種設定を行っていただけます。
 
-NGINX Plusの基本的な動作や仕様については以下資料を参照してください。  
-(ラボの一部の内容はこれらのセミナーでご紹介した内容と同様となります)
+NGINX Plusの基本的な動作や仕様について紹介しております。
 
-セミナー資料は以下を参照してください。  
+基本的な解説資料は以下を参照してください。  
+(このラボはこのセミナーでご紹介した内容と同様となります)
 
+### セミナー資料
 [これから始めるNGINX技術解説～基本編](https://www.slideshare.net/Nginx/nginx-nginx-back-to-basic-in-jp)
  (2.1～2.3 , 3.1～3.5に該当) 
-
 [これから始めるNGINX技術解説～基本編 Part2](https://www.slideshare.net/Nginx/nginx-back-to-basic-2-part-2-japanese-webinar)
  (3.6～3.9に該当) 
+
+### Webinar(プレゼンテーション・デモ)
+[これから始めるNGINX技術解説～基本編](https://www.nginx.co.jp/resources/webinars/nginx-back-to-basic-jp/)
+[これから始めるNGINX技術解説～基本編 Part2](https://www.nginx.co.jp/resources/webinars/nginx-back-to-basic-2-jp/)
 
 
 # UDF コンポーネントへの接続
