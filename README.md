@@ -20,10 +20,10 @@
   - [3. 基本的な動作の確認](#3-基本的な動作の確認)
     - [0. 事前ファイルの取得 (5min)](#0-事前ファイルの取得-5min)
     - [1. 設定のテスト、設定の反映 (10min)](#1-設定のテスト設定の反映-10min)
-    - [2. 設定の継承](#2-設定の継承)
+    - [2. 設定の継承 (10min)](#2-設定の継承-10min)
     - [3. server directive (10min)](#3-server-directive-10min)
     - [4. listen directive (10min)](#4-listen-directive-10min)
-    - [5. server_name directive](#5-server_name-directive)
+    - [5. server_name directive (10min)](#5-server_name-directive-10min)
     - [6. location directive (10min)](#6-location-directive-10min)
     - [7. Proxy (5min)](#7-proxy-5min)
     - [8. Load Balancing (5min)](#8-load-balancing-5min)
@@ -432,7 +432,7 @@ curl -s localhost:81 | grep title
 <title>Welcome to nginx!</title>
 ```
 
-### 2. 設定の継承
+### 2. 設定の継承 (10min)
 ラボで使用するファイルをコピーします
 ```
 cp -r ~/back-to-basic_plus/html .
@@ -656,7 +656,7 @@ rm default.conf
 service nginx restart
 ```
 
-### 5. server_name directive
+### 5. server_name directive (10min)
 server_name directiveを利用することにより、待ち受けるFQDNを指定することが可能です。
 
 ラボで使用するファイルをコピーします
