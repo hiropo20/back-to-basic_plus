@@ -9,25 +9,25 @@
   - [Windows Jump HostへのRDP接続](#windows-jump-hostへのrdp接続)
   - [Linux Hostへの接続 (Jump Host を利用しない場合)](#linux-hostへの接続-jump-host-を利用しない場合)
 - [NGINX Plus の動作](#nginx-plus-の動作)
-  - [1. NGINX Plusのインストール](#1-nginx-plusのインストール)
+  - [1. NGINX Plusのインストール (15min)](#1-nginx-plusのインストール-15min)
     - [NGINX Licenseファイルのコピー](#nginx-licenseファイルのコピー)
     - [コマンドの実行](#コマンドの実行)
     - [NGINX パッケージのインストール](#nginx-パッケージのインストール)
   - [2. NGINXの基礎](#2-nginxの基礎)
-    - [1. ステータスの確認](#1-ステータスの確認)
-    - [2. Directive / Block](#2-directive--block)
-    - [3. Configの階層構造](#3-configの階層構造)
+    - [1. ステータスの確認 (5min)](#1-ステータスの確認-5min)
+    - [2. Directive / Block (5min)](#2-directive--block-5min)
+    - [3. Configの階層構造 (5min)](#3-configの階層構造-5min)
   - [3. 基本的な動作の確認](#3-基本的な動作の確認)
-    - [0. 事前ファイルの取得](#0-事前ファイルの取得)
-    - [1. 設定のテスト、設定の反映](#1-設定のテスト設定の反映)
+    - [0. 事前ファイルの取得 (5min)](#0-事前ファイルの取得-5min)
+    - [1. 設定のテスト、設定の反映 (10min)](#1-設定のテスト設定の反映-10min)
     - [2. 設定の継承](#2-設定の継承)
-    - [3. server directive](#3-server-directive)
-    - [4. listen directive](#4-listen-directive)
+    - [3. server directive (10min)](#3-server-directive-10min)
+    - [4. listen directive (10min)](#4-listen-directive-10min)
     - [5. server_name directive](#5-server_name-directive)
-    - [6. location directive](#6-location-directive)
-    - [7. Proxy](#7-proxy)
-    - [8. Load Balancing](#8-load-balancing)
-    - [9. トラフィックの暗号化](#9-トラフィックの暗号化)
+    - [6. location directive (10min)](#6-location-directive-10min)
+    - [7. Proxy (5min)](#7-proxy-5min)
+    - [8. Load Balancing (5min)](#8-load-balancing-5min)
+    - [9. トラフィックの暗号化 (5min)](#9-トラフィックの暗号化-5min)
   
 
 # 実施環境
@@ -80,7 +80,7 @@ Windows Jump Hostへログインいただくと、SSH Clientのショートカ�
 
 
 # NGINX Plus の動作
-## 1. NGINX Plusのインストール
+## 1. NGINX Plusのインストール (15min)
 
 以下の手順に従ってNGINX Plus をインストール  
 [Installing NGINX Plus on Ubuntu](https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-plus/#installing-nginx-plus-on-ubuntu)
@@ -178,7 +178,7 @@ ii  app-protect-plugin                 3.671.0-1~focal                       amd
 
 ```
 ## 2. NGINXの基礎
-### 1. ステータスの確認
+### 1. ステータスの確認 (5min)
 NGINX Plusのアーキテクチャ
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-22-638.jpg" alt="Architecture" width="400"><br>
 <img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-26-638.jpg" alt="NoDowntime" width="400"><br>
@@ -257,23 +257,23 @@ nginx       9149  0.0  0.1   9764  3528 ?        S    10:12   0:00 nginx: worker
 ```
 
 
-### 2. Directive / Block
+### 2. Directive / Block (5min)
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-32-638.jpg" alt="Directive" width="400"><br>
 
-### 3. Configの階層構造
+### 3. Configの階層構造 (5min)
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-34-638.jpg" alt="Contexts" width="400"><br>
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-41-638.jpg" alt="include" width="400"><br>
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-42-638.jpg" alt="Inheritance" width="400"><br>
 
 ## 3. 基本的な動作の確認
-### 0. 事前ファイルの取得
+### 0. 事前ファイルの取得 (5min)
 ラボで必要なファイルをGitHubから取得
 ```
 sudo su - 
 cd ~/
 git clone https://github.com/hiropo20/back-to-basic_plus/
 ```
-### 1. 設定のテスト、設定の反映
+### 1. 設定のテスト、設定の反映 (10min)
 ディレクトリを移動し、必要なファイルをコピーします
 ```
 cd /etc/nginx/conf.d/
@@ -490,7 +490,7 @@ curl -s localhost:8080 | grep path
 ```
 
 
-### 3. server directive
+### 3. server directive (10min)
 NGINXが通信を待ち受ける動作について以下を確認してください。
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-45-638.jpg" alt="serving_content" width="400"><br>
 <img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-47-638.jpg" alt="request" width="400"><br>
@@ -565,7 +565,7 @@ curl -s localhost:80 | grep default
 
 
 
-### 4. listen directive
+### 4. listen directive (10min)
 listen directiveを利用することにより、NGINXが待ち受けるIPアドレスやポート番号など指定することができます。  
 以下のような記述で意図した動作となるよう設定をします
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicinjp-210218184113/95/nginx-nginx-back-to-basic-in-jp-49-638.jpg" alt="listen" width="400"><br>
@@ -734,7 +734,7 @@ www.example.*
 ```
 
 
-### 6. location directive
+### 6. location directive (10min)
 ラボで使用するファイルをコピーします
 ```
 cp ~/back-to-basic_plus/lab/m4-1_demo.conf default.conf
@@ -792,7 +792,7 @@ LOCATION: ^~ /app1, URI: /app1/index.html, PORT: 80
 LOCATION: ~* \.(php|html), URI: /app2/index.html, PORT: 80
 ```
 
-### 7. Proxy
+### 7. Proxy (5min)
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-25-638.jpg" alt="proxy" width="400"><br>
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-27-638.jpg" alt="proxy_append" width="400"><br>
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-26-638.jpg" alt="proxy_replace" width="400"><br>
@@ -843,7 +843,7 @@ server {
 ```
 
 
-### 8. Load Balancing
+### 8. Load Balancing (5min)
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-36-638.jpg" alt="lb" width="400"><br>
 ラボで使用するファイルをコピーします
 ```
@@ -921,7 +921,7 @@ for i in {1..9}; do echo "==$i==" ; curl -s localhost | jq . ; sleep 1 ; done
 Dashboardの結果が適切なweightで分散されていることを確認してください。
 
 
-### 9. トラフィックの暗号化
+### 9. トラフィックの暗号化 (5min)
 <br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-57-638.jpg" alt="lb" width="400"><br>
 ラボで使用するファイルをコピーします
 ```
