@@ -45,12 +45,14 @@ NGINX Plusの基本的な動作や仕様について紹介しております。
 
 ### セミナー資料
 [これから始めるNGINX技術解説～基本編](https://www.slideshare.net/Nginx/nginx-nginx-back-to-basic-in-jp)
- (2.1～2.3 , 3.1～3.5に該当) 
+ (2.1～2.3 , 3.1～3.5に該当)   
+
 [これから始めるNGINX技術解説～基本編 Part2](https://www.slideshare.net/Nginx/nginx-back-to-basic-2-part-2-japanese-webinar)
  (3.6～3.9に該当) 
 
 ### Webinar(プレゼンテーション・デモ)
 [これから始めるNGINX技術解説～基本編](https://www.nginx.co.jp/resources/webinars/nginx-back-to-basic-jp/)
+
 [これから始めるNGINX技術解説～基本編 Part2](https://www.nginx.co.jp/resources/webinars/nginx-back-to-basic-2-jp/)
 
 
