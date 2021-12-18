@@ -72,7 +72,6 @@ Windows Jump Hostへログインいただくと、SSH Clientのショートカ�
 
 
 ## Linux Hostへの接続 (Jump Host を利用しない場合)
-`k8s1` への接続はメニューより `SSH` をクリックしてください
 <br><img src="https://user-images.githubusercontent.com/43058573/143065455-a327815e-beaa-4351-b112-145ea561db32.JPG" alt="Host Menu" width="200"><br>
 `ubuntu01` へのSSH接続は、Jump Host経由　または、SSH鍵認証を用いて接続可能です。SSH鍵の登録手順は以下を参照ください
 ***SSH鍵を登録頂いていない場合、SSHはグレーアウトします***
