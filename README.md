@@ -601,9 +601,6 @@ server {
     listen unix:/var/run/nginx.sock;
 }
 
-
-# service nginx restart
-
 ```
 設定で指定したポート番号やソケットでListenしていることを確認してください。
 （正しく設定が読み込めない場合は、再度上記コマンドにて設定を読み込んでください)
