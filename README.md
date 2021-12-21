@@ -652,7 +652,7 @@ tcp   LISTEN    0      511                                              0.0.0.0:
 socketを削除し、NGINXが起動することを確認します
 
 ```
-rm /var/run/nginx/sock
+rm /var/run/nginx.sock
 rm default.conf
 service nginx restart
 ```
