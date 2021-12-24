@@ -920,10 +920,10 @@ for i in {1..9}; do echo "==$i==" ; curl -s localhost | jq . ; sleep 1 ; done
 }
 ```
 Dashboardの結果が適切なweightで分散されていることを確認してください。
-
+<br><img src="https://user-images.githubusercontent.com/43058573/147325904-7b0ebf35-d4a0-4b94-afc4-80276b60021d.png" alt="balancing_weight" width="400"><br>
 
 ### 9. トラフィックの暗号化 (5min)
-<br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-57-638.jpg" alt="lb" width="400"><br>
+<br><img src="https://image.slidesharecdn.com/nginxbacktobasicspt2-210330185029/95/nginx-back-to-basic-2-part-2-japanese-webinar-57-638.jpg" alt="ssl" width="400"><br>
 ラボで使用するファイルをコピーします
 ```
 cp -r ~/back-to-basic_plus/ssl .
