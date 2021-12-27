@@ -61,19 +61,19 @@ NGINX Plusの基本的な動作や仕様について紹介しております。
 Windows Jump HostからCLIの操作を行う場合、以下タブからRDP Clientファイルをダウンロードいただき接続ください
 <br><img src="https://user-images.githubusercontent.com/43058573/121283531-417b5f80-c916-11eb-9ff9-8d0e7e8f1aad.png" alt="RDP" width="200"><br>
 
+> RDPのUser名、パスワードはDETAILSをクリックし、GeneralのタブのCredentialsの項目を参照ください   
+> `user` でログインしてください
+> <br><img src="https://user-images.githubusercontent.com/43058573/121283534-417b5f80-c916-11eb-88af-9f95c2ced284.png" alt="DETAILS" width="200"><br>
+> <img src="https://user-images.githubusercontent.com/43058573/121283535-4213f600-c916-11eb-8a89-67362d7a340b.png" alt="Generals" width="300"><br>
+
 Windows Jump Hostへログインいただくと、SSH Clientのショートカットがありますので、そちらをダブルクリックし `ubuntu01` へ接続ください
 <br><img src="https://user-images.githubusercontent.com/43058573/143063512-43f9f7eb-23d9-4895-b583-efa63918ece4.JPG" alt="ssh"><br>
 <br><img src="https://user-images.githubusercontent.com/43058573/143063995-ce445bfe-542b-4d88-ba72-ed935b99d195.JPG" alt="DETAILS" width="300"><br>
 
 
-> RDPのUser名、パスワードはDETAILSをクリックし、GeneralのタブのCredentialsの項目を参照ください
-> <br><img src="https://user-images.githubusercontent.com/43058573/121283534-417b5f80-c916-11eb-88af-9f95c2ced284.png" alt="DETAILS" width="200"><br>
-> <img src="https://user-images.githubusercontent.com/43058573/121283535-4213f600-c916-11eb-8a89-67362d7a340b.png" alt="Generals" width="300"><br>
-
-
 ## Linux Hostへの接続 (Jump Host を利用しない場合)
 <br><img src="https://user-images.githubusercontent.com/43058573/143065455-a327815e-beaa-4351-b112-145ea561db32.JPG" alt="Host Menu" width="200"><br>
-`ubuntu01` へのSSH接続は、Jump Host経由　または、SSH鍵認証を用いて接続可能です。SSH鍵の登録手順は以下を参照ください
+`ubuntu01` へのSSH接続は、Jump Host経由 または、SSH鍵認証を用いて接続可能です。SSH鍵の登録手順は以下を参照ください
 ***SSH鍵を登録頂いていない場合、SSHはグレーアウトします***
 <br><a href="https://github.com/hiropo20/partner_nap_workshop_secure/blob/main/UDF_SSH_Key.pdf">UDF LAB SSH鍵登録マニュアル</a> (ラボ実施時閲覧可に変更します)<br>
 
@@ -89,7 +89,15 @@ Windows Jump Hostへログインいただくと、SSH Clientのショートカ�
 
 ### NGINX Licenseファイルのコピー
 ライセンスファイルをコピーしてください
-ファイルが配置されていない場合、トライアルを申請し証明書と鍵を取得してください
+ファイルがラボ環境に配置されていない場合、トライアルを申請し証明書と鍵を取得してください   
+トライアルの申請方法は[トライアル申請方法](https://github.com/hiropo20/nginx_how_to_get_plus_trial)を参照してください
+
+> 取得したライセンスファイルを`Jump Host`にコピーした後、`ubuntu-01`に送信するために`pscp`をご利用いただくことが可能です。以下コマンドを参考にご利用ください。
+> ```
+> コマンド: pscp -i <SSHで利用する公開鍵> <送付するファイル> <宛先>
+> 
+> pscp -i .\.ssh\id_rsa-putty.ppk .\Desktop\Files\<送信するファイル> ubuntu@10.1.1.7:/home/ubuntu
+> ```
 
 ```
 sudo mkdir -p /etc/ssl/nginx
