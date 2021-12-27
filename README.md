@@ -96,7 +96,7 @@ Windows Jump Hostへログインいただくと、SSH Clientのショートカ�
 > ```
 > コマンド: pscp -i <SSHで利用する公開鍵> <送付するファイル> <宛先>
 > 
-> pscp -i .\.ssh\id_rsa-putty.ppk .\Desktop\Files\<送信するファイル> ubuntu@10.1.1.7:/home/ubuntu
+> pscp -i .\.ssh\id_rsa-putty.ppk <送信するファイル> ubuntu@10.1.1.7:/home/ubuntu
 > ```
 
 ```
