@@ -59,7 +59,7 @@ NGINX Plusの基本的な動作や仕様について紹介しております。
 # ラボ環境 (UDF(Unified Demonstration Framework)) コンポーネントへの接続
 弊社が提供するLAB環境を使って動作を確認いただきます。   
 ラボ環境を起動する等、一部ブラウザを使って操作します。   
-Google ChromeがSupportブラウザとなります。その他ブラウザでは正しく動作しない場合があることご了承ください。
+Google ChromeがSupportブラウザとなります。その他ブラウザでは正しく動作しない場合があることご了承ください。   
 参照：[UDF Supported Browsers and Clients](https://help.udf.f5.com/en/articles/3470266-supported-browsers-and-clients)
 
 
