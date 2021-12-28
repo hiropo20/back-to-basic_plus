@@ -5,7 +5,7 @@
 - [座学資料](#座学資料)
     - [セミナー資料](#セミナー資料)
     - [Webinar(プレゼンテーション・デモ)](#webinarプレゼンテーションデモ)
-- [UDF コンポーネントへの接続](#udf-コンポーネントへの接続)
+- [ラボ環境 (UDF(Unified Demonstration Framework)) コンポーネントへの接続](#ラボ環境-udfunified-demonstration-framework-コンポーネントへの接続)
   - [Windows Jump HostへのRDP接続](#windows-jump-hostへのrdp接続)
   - [Linux Hostへの接続 (Jump Host を利用しない場合)](#linux-hostへの接続-jump-host-を利用しない場合)
 - [NGINX Plus の動作](#nginx-plus-の動作)
@@ -33,7 +33,7 @@
 # 実施環境
 * 事前にラボ環境へのInviteを行っておりますので、メールをご確認ください
 * 利用するコマンド： kubectl git , jq , sudo, curl
-* NGINX Trialライセンスの取得、ラボ実施ユーザのHome Directryへ配置
+* NGINX Trialライセンスの取得、ラボ実施ユーザのHome Directoryへ配置
 
 # 座学資料
 このラボはNGINX Plusのインストールから各種設定を行っていただけます。
@@ -56,7 +56,14 @@ NGINX Plusの基本的な動作や仕様について紹介しております。
 [これから始めるNGINX技術解説～基本編 Part2](https://www.nginx.co.jp/resources/webinars/nginx-back-to-basic-2-jp/)
 
 
-# UDF コンポーネントへの接続
+# ラボ環境 (UDF(Unified Demonstration Framework)) コンポーネントへの接続
+弊社が提供するLAB環境を使って動作を確認いただきます。
+ラボ環境を起動する等、一部ブラウザを使って操作します。
+Google ChromeがSupportブラウザとなります。その他ブラウザでは正しく動作しない場合があることご了承ください。
+参照：[UDF Supported Browsers and Clients](https://help.udf.f5.com/en/articles/3470266-supported-browsers-and-clients)
+
+
+
 ## Windows Jump HostへのRDP接続
 Windows Jump HostからCLIの操作を行う場合、以下タブからRDP Clientファイルをダウンロードいただき接続ください
 <br><img src="https://user-images.githubusercontent.com/43058573/121283531-417b5f80-c916-11eb-9ff9-8d0e7e8f1aad.png" alt="RDP" width="200"><br>
@@ -568,7 +575,7 @@ curl -s localhost:80 | grep default
     <h2>This is default html file path</h2>
 ```
 今度は正しく結果が表示されました
-このようにdefeaultパラメータの動作を確認できました
+このようにdefaultパラメータの動作を確認できました
 
 
 
