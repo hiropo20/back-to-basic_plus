@@ -81,8 +81,8 @@ Windows Jump Hostへログインいただくと、SSH Clientのショートカ�
 # NGINX Plus の動作
 ## 1. NGINX Plusのインストール (15min)
 
-以下の手順に従ってNGINX Plus をインストール  
-[Installing NGINX Plus on Ubuntu](https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-plus/#installing-nginx-plus-on-ubuntu)
+本ページに記載する手順に従ってNGINX Plus をインストールします
+参考：[Installing NGINX Plus on Ubuntu](https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-plus/#installing-nginx-plus-on-ubuntu)
 
 > 手順確認の目的で、NGINX Plusの他、NGINX App Protect WAF、NGINX App Protect Dosのインストール手順も示しています。
 > ただし、本ラボでセキュリティ機能の確認はありません
