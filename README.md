@@ -746,7 +746,8 @@ www.example.*
 ・正規表現のはじめに一致する結果を確認
 # curl localhost -H 'Host:host2.example.co.jp'
 ~^.*\.example\..*
-
+# curl localhost -H 'Host:host2.example.com'
+~^(www2|host2).*\.example\.com
 ```
 
 
